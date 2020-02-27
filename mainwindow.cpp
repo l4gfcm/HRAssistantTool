@@ -15,7 +15,10 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QDebug>
+#include <QSqlIndex>
+#include <QSqlRecord>
 #include <vector>
+#include <utility>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -65,7 +68,7 @@ void MainWindow::initApp(){
         table->setHeaderData(5, Qt::Horizontal, "Vacancy");
         table->setHeaderData(6, Qt::Horizontal, "State");
         table->setRelation(5, QSqlRelation("vacancies", "id_vacancy", "vname"));
-        table->setRelation(6, QSqlRelation("workflow", "id_step", "name"));
+        table->setRelation(6, QSqlRelation("workflow", "id_step", "sname"));
 
         table->select();
 
@@ -93,7 +96,7 @@ void MainWindow::addWorker(){
     for (uint16_t index = 0; getVacancy.next(); index++) {
         QString vacancy = getVacancy.value(fieldNo).toString();
         vacancies.push_back(vacancy);
-        indexToID[index] = getVacancy.record().value(0).toInt();
+        indexToID[index] = getVacancy.record().value(0).toInt();///fix the vector!!!
         qDebug() << indexToID[index];
     }
 
@@ -120,6 +123,25 @@ void MainWindow::addWorker(){
 
 void MainWindow::editRecord(const QModelIndex &index){
 
-EditRecord().exec();
+    QString FLName;
+    FLName.append(index.siblingAtColumn(1).data().toString());
+    FLName.append(" ");
+    FLName.append(index.siblingAtColumn(2).data().toString());
+
+    QSqlQuery getWorkFlow;
+    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = id VALUES (?)"); ///wtf
+    getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker
+    std::vector<std::pair<uint16_t, QString>> steps;
+    qDebug() << getWorkFlow.lastError();
+    while (getWorkFlow.next()) {
+
+        steps.push_back(std::make_pair(getWorkFlow.record().value(0).toInt(), //step id
+                                       getWorkFlow.record().value(1).toString())); //step name
+    }
+
+    EditRecord edit(this);
+    edit.setFLName(FLName);
+    edit.setSteps(steps);
+    edit.exec();
 
 }

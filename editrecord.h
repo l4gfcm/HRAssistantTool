@@ -2,6 +2,9 @@
 #define EDITRECORD_H
 
 #include <QDialog>
+#include <vector>
+class pair;
+class QRadioButton;
 
 namespace Ui {
 class EditRecord;
@@ -15,8 +18,12 @@ public:
     explicit EditRecord(QWidget *parent = nullptr);
     ~EditRecord();
 
+    void setFLName(const QString &flname);
+    void setSteps (const std::vector<std::pair<uint16_t, QString>> &steps);
+
 private:
     Ui::EditRecord *ui;
+    std::vector<QRadioButton *> buttons;
 };
 
 #endif // EDITRECORD_H

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="WorkFlow">
       <attribute name="title">
@@ -53,7 +53,9 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="WorkflowButtons"/>
+        <widget class="QGroupBox" name="workFlow">
+         <layout class="QHBoxLayout" name="WorkflowButtons"/>
+        </widget>
        </item>
       </layout>
      </widget>
