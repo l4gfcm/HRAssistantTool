@@ -96,8 +96,7 @@ void MainWindow::addWorker(){
     for (uint16_t index = 0; getVacancy.next(); index++) {
         QString vacancy = getVacancy.value(fieldNo).toString();
         vacancies.push_back(vacancy);
-        indexToID[index] = getVacancy.record().value(0).toInt();///fix the vector!!!
-        qDebug() << indexToID[index];
+        indexToID.push_back(getVacancy.record().value(0).toInt());
     }
 
     NewWorker dialogNW(this);
@@ -129,8 +128,9 @@ void MainWindow::editRecord(const QModelIndex &index){
     FLName.append(index.siblingAtColumn(2).data().toString());
 
     QSqlQuery getWorkFlow;
-    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = id VALUES (?)"); ///wtf
-    getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker
+    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` =:id");
+    getWorkFlow.bindValue(":id", table->record(index.row()).value(6).toInt()); //RAW state value of worker
+    getWorkFlow.exec();
     std::vector<std::pair<uint16_t, QString>> steps;
     qDebug() << getWorkFlow.lastError();
     while (getWorkFlow.next()) {
