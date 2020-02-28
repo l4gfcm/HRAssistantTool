@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <vector>
-class pair;
+
 class QRadioButton;
 
 namespace Ui {
@@ -19,10 +19,10 @@ public:
     ~EditRecord();
 
     void setFLName(const QString &flname);
-    void setSteps (const std::vector<std::pair<uint16_t, QString>> &steps);
+    void setSteps (const std::vector<QString> &steps);
     QDateTime getNextDate();
     QString getComment();
-
+    uint16_t getStateId();
 private:
     Ui::EditRecord *ui;
     std::vector<QRadioButton *> buttons;

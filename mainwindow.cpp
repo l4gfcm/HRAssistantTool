@@ -122,15 +122,15 @@ void MainWindow::addWorker(){
 }
 
 void MainWindow::editRecord(const QModelIndex &index){
-
+    uint16_t workerPK = table->record(index.row()).value(0).toInt();
     QString FLName;
     FLName.append(index.siblingAtColumn(1).data().toString());
     FLName.append(" ");
     FLName.append(index.siblingAtColumn(2).data().toString());
 
     QSqlQuery getWorkFlow;
-    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` =:id");
-    getWorkFlow.bindValue(":id", table->record(index.row()).value(6).toInt()); //RAW state value of worker
+    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = ?");
+    getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker
     getWorkFlow.exec();
     std::vector<std::pair<uint16_t, QString>> steps;
     qDebug() << getWorkFlow.lastError();
@@ -140,12 +140,25 @@ void MainWindow::editRecord(const QModelIndex &index){
                                        getWorkFlow.record().value(1).toString())); //step name
     }
 
-    EditRecord edit(this);
-    edit.setFLName(FLName);
-    edit.setSteps(steps);
-    edit.exec();
-    if(edit.Accepted){
-//        /QSqlQuery
+    EditRecord editDialog(this);
+    editDialog.setFLName(FLName);
+
+    std::vector<QString> arg;
+    for (auto step : steps) {
+        arg.push_back(step.second);
+    }
+
+    editDialog.setSteps(arg);
+    editDialog.exec();
+    if(editDialog.Accepted){
+        QSqlQuery updateStatus;
+        updateStatus.prepare("UPDATE `workers` SET `fd_state` = ? WHERE (`id_worker` = ?)");
+        updateStatus.bindValue(0, steps[editDialog.getStateId()].first); //step id
+        updateStatus.bindValue(1, workerPK); //id value of worker
+        updateStatus.exec();
+
+        saveToHistory(workerPK, steps[editDialog.getStateId()].first, editDialog.getComment());
+
     }
 
 }
