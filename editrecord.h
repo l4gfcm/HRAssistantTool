@@ -26,6 +26,8 @@ public:
 private:
     Ui::EditRecord *ui;
     std::vector<QRadioButton *> buttons;
+private slots:
+    void checkInput();
 };
 
 #endif // EDITRECORD_H

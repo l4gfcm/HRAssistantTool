@@ -3,6 +3,7 @@
 
 #include <QRadioButton>
 #include <QDebug>
+#include <QPushButton>
 //#include;
 
 EditRecord::EditRecord(QWidget *parent) :
@@ -10,12 +11,13 @@ EditRecord::EditRecord(QWidget *parent) :
     ui(new Ui::EditRecord)
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 }
 
 EditRecord::~EditRecord()
 {
     delete ui;
-    for (auto button : buttons) {
+    for (auto &button : buttons) {
         delete button;
     }
 }
@@ -51,3 +53,19 @@ uint16_t EditRecord::getStateId(){
     }
     return i;
 }
+
+
+void EditRecord::checkInput(){
+    bool dataEntered = false;
+    for (auto &butt : buttons) {
+        if (butt->isChecked())
+            dataEntered = true;
+    }
+    if (!dataEntered){
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    }
+    else {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    }
+}
+
