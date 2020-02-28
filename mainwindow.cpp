@@ -102,22 +102,23 @@ void MainWindow::addWorker(){
     NewWorker dialogNW(this);
     dialogNW.setVacancies(vacancies);
     dialogNW.exec();
+    if(dialogNW.Accepted){
+        QSqlQuery insertToWorkers;
+        insertToWorkers.prepare("INSERT INTO workers (id_worker, fname, lname, mphone, next_date, fd_vacancy, fd_state) "
+                       "VALUES (?, ?, ?, ?, ?, ?, ?)");
+         //AutoIncrement
+        insertToWorkers.bindValue(1, dialogNW.getFirsName());
+        insertToWorkers.bindValue(2, dialogNW.getLastName());
+        insertToWorkers.bindValue(3, dialogNW.getPhoneNumber());
+        insertToWorkers.bindValue(4, dialogNW.getNextDateTime());
+        insertToWorkers.bindValue(5, indexToID[dialogNW.getVacancyIndex()]);
+        insertToWorkers.bindValue(6, 0); // New records get a start state
+        insertToWorkers.exec();
 
-    QSqlQuery insertToWorkers;
-    insertToWorkers.prepare("INSERT INTO workers (id_worker, fname, lname, mphone, next_date, fd_vacancy, fd_state) "
-                   "VALUES (?, ?, ?, ?, ?, ?, ?)");
-     //AutoIncrement
-    insertToWorkers.bindValue(1, dialogNW.getFirsName());
-    insertToWorkers.bindValue(2, dialogNW.getLastName());
-    insertToWorkers.bindValue(3, dialogNW.getPhoneNumber());
-    insertToWorkers.bindValue(4, dialogNW.getNextDateTime());
-    insertToWorkers.bindValue(5, indexToID[dialogNW.getVacancyIndex()]);
-    insertToWorkers.bindValue(6, 0); // New records get a start state
-    insertToWorkers.exec();
+        saveToHistory(insertToWorkers.lastInsertId().toInt(), 0, dialogNW.getComment());
 
-    saveToHistory(insertToWorkers.lastInsertId().toInt(), 0, dialogNW.getComment());
-
-    table->select();
+        table->select();
+    }
 }
 
 void MainWindow::editRecord(const QModelIndex &index){
@@ -143,5 +144,8 @@ void MainWindow::editRecord(const QModelIndex &index){
     edit.setFLName(FLName);
     edit.setSteps(steps);
     edit.exec();
+    if(edit.Accepted){
+//        /QSqlQuery
+    }
 
 }

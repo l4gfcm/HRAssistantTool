@@ -20,6 +20,8 @@ public:
 
     void setFLName(const QString &flname);
     void setSteps (const std::vector<std::pair<uint16_t, QString>> &steps);
+    QDateTime getNextDate();
+    QString getComment();
 
 private:
     Ui::EditRecord *ui;

@@ -24,9 +24,16 @@ void EditRecord::setFLName(const QString &flname){
 void EditRecord::setSteps(const std::vector<std::pair<uint16_t, QString> > &steps){
     qDebug() << steps.size();
     for(size_t i = 0; i < steps.size(); i++){
-        auto button = new QGroupBox(this);
-        button->setTitle(steps[i].second);
+        auto button = new QRadioButton(this);
+        button->setText(steps[i].second);
         ui->WorkflowButtons->addWidget(button);
     }
+}
 
+QString EditRecord::getComment(){
+    return ui->commentEdit->toPlainText();
+}
+
+QDateTime EditRecord::getNextDate(){
+    return ui->nextDateTime->dateTime();
 }

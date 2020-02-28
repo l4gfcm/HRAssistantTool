@@ -26,15 +26,8 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <widget class="QLabel" name="FLName">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="workerLabel">
+          <widget class="QLabel" name="nextDateLabel">
            <property name="text">
             <string>Worker:</string>
            </property>
@@ -50,10 +43,25 @@
          <item row="1" column="1">
           <widget class="QPlainTextEdit" name="commentEdit"/>
          </item>
+         <item row="0" column="1">
+          <widget class="QDateTimeEdit" name="nextDateTime"/>
+         </item>
         </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="workFlow">
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
+         <property name="title">
+          <string>WorkFlow</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
          <layout class="QHBoxLayout" name="WorkflowButtons"/>
         </widget>
        </item>
