@@ -66,7 +66,7 @@ void EditRecord::setHistory(const std::vector<std::tuple<QString, QString, QDate
 
         ui->gridLayoutHistrory->addWidget(step, row, 0, Qt::AlignTop);
         ui->gridLayoutHistrory->addWidget(date, row, 1, Qt::AlignTop);
-        ui->gridLayoutHistrory->addWidget(comment, row + 1, 0);
+        ui->gridLayoutHistrory->addWidget(comment, row + 1, 0, Qt::AlignTop);
 
     }
 }

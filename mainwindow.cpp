@@ -132,8 +132,9 @@ void MainWindow::editRecord(const QModelIndex &index){
     FLName.append(index.siblingAtColumn(2).data().toString());
 
     QSqlQuery getWorkFlow;
-    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = ?");
-    getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker !!BUG!!
+    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = "
+                        "(SELECT fd_state FROM `workers` WHERE `id_worker` = ?)");
+    getWorkFlow.bindValue(0, index.siblingAtColumn(0).data().toInt());
     getWorkFlow.exec();
 
     std::vector<std::pair<uint16_t, QString>> steps;
@@ -147,27 +148,21 @@ void MainWindow::editRecord(const QModelIndex &index){
     }
 
     QSqlQuery getHistory;
-    getHistory.prepare("SELECT  `fid_step`, `comment`, `date` FROM `history` WHERE fid_worker = ?");
+    getHistory.prepare("SELECT `workflow`.`sname`, `comment`, `date` FROM `history` "
+                       "INNER JOIN `workflow` ON `history`.`fid_step` = `workflow`.`id_step` WHERE fid_worker = ?");
     getHistory.bindValue(0, workerPK);
     getHistory.exec();
-
-    QSqlQuery getWorkFlowNameMap("SELECT `id_step`, `sname` FROM `workflow`");
-    std::unordered_map<uint16_t, QString> idToName;
-    while(getWorkFlowNameMap.next()){
-        idToName[getWorkFlow.record().value(0).toInt()] = getWorkFlow.record().value(1).toString();
-    }
 
     std::vector<std::tuple<QString, QString, QDateTime>> userHistory; //StepName, Comment, date
     while (getHistory.next()) {
         userHistory.push_back(
                     std::make_tuple(
-                        idToName[getHistory.record().value(0).toInt()],
+                        getHistory.record().value(0).toString(),
                         getHistory.record().value(1).toString(),
                         getHistory.record().value(2).toDateTime()
                         )
                     );
     }
-
     EditRecord editDialog(this);
     editDialog.setFLName(FLName);
     editDialog.setSteps(stepNames);
