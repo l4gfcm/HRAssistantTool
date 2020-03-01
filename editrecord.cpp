@@ -57,3 +57,17 @@ void EditRecord::checkInput(){
     }
 }
 
+void EditRecord::setHistory(const std::vector<std::tuple<QString, QString, QDateTime> > & history){
+
+    for (size_t i = 0, row = 0 ; i < history.size() ; i++, row = row + 2) {
+        auto step = new QLabel(std::get<0>(history[i]), this);
+        auto comment = new QLabel(std::get<1>(history[i]), this);
+        auto date = new QLabel(std::get<2>(history[i]).toString(), this);
+
+        ui->gridLayoutHistrory->addWidget(step, row, 0, Qt::AlignTop);
+        ui->gridLayoutHistrory->addWidget(date, row, 1, Qt::AlignTop);
+        ui->gridLayoutHistrory->addWidget(comment, row + 1, 0);
+
+    }
+}
+

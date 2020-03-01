@@ -133,7 +133,7 @@ void MainWindow::editRecord(const QModelIndex &index){
 
     QSqlQuery getWorkFlow;
     getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = ?");
-    getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker
+    getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker !!BUG!!
     getWorkFlow.exec();
 
     std::vector<std::pair<uint16_t, QString>> steps;
@@ -168,10 +168,10 @@ void MainWindow::editRecord(const QModelIndex &index){
                     );
     }
 
-
     EditRecord editDialog(this);
     editDialog.setFLName(FLName);
     editDialog.setSteps(stepNames);
+    editDialog.setHistory(userHistory);
 
     if(editDialog.exec() == QDialog::Accepted){
         QSqlQuery updateStatus;
@@ -179,8 +179,8 @@ void MainWindow::editRecord(const QModelIndex &index){
         updateStatus.bindValue(0, steps[editDialog.getStateId()].first); //step id
         updateStatus.bindValue(1, workerPK); //id value of worker
         updateStatus.exec();
-
         saveToHistory(workerPK, steps[editDialog.getStateId()].first, editDialog.getComment());
+        table->select();
 
     }
 

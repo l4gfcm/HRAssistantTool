@@ -23,6 +23,7 @@ public:
     QDateTime getNextDate();
     QString getComment();
     uint16_t getStateId();
+    void setHistory(const std::vector<std::tuple<QString, QString, QDateTime>> &);
 private:
     Ui::EditRecord *ui;
     //std::vector<QRadioButton *> buttons;
