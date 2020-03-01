@@ -1,11 +1,19 @@
 #include "newworker.h"
 #include "ui_newworker.h"
+#include <QPushButton>
+#include <QDebug>
 
 NewWorker::NewWorker(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NewWorker)
 {
     ui->setupUi(this);
+    ui->dateTime->setDate(QDate::currentDate());
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    connect(ui->lnameLine, &QLineEdit::editingFinished, this, &NewWorker::checkInput);
+    connect(ui->fnameLine, &QLineEdit::editingFinished, this, &NewWorker::checkInput);
+    connect(ui->phoneLine, &QLineEdit::editingFinished, this, &NewWorker::checkInput);
 }
 
 NewWorker::~NewWorker()
@@ -38,4 +46,20 @@ uint16_t NewWorker::getVacancyIndex(){
 
 QDateTime NewWorker::getNextDateTime(){
     return ui->dateTime->dateTime();
+}
+
+void NewWorker::checkInput(){
+    qDebug() << "sfsfs";
+    if(
+            ui->fnameLine->text().isEmpty() ||
+            ui->lnameLine->text().isEmpty() ||
+            ui->phoneLine->text().isEmpty()
+            )
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    }
+    else
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    }
 }

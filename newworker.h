@@ -25,6 +25,8 @@ public:
 
 private:
     Ui::NewWorker *ui;
+private slots:
+    void checkInput();
 };
 
 #endif // NEWWORKER_H
