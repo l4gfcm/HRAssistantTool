@@ -19,6 +19,7 @@
 #include <QSqlRecord>
 #include <vector>
 #include <utility>
+#include <unordered_map>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -122,7 +123,9 @@ void MainWindow::addWorker(){
 }
 
 void MainWindow::editRecord(const QModelIndex &index){
+
     uint16_t workerPK = table->record(index.row()).value(0).toInt();
+
     QString FLName;
     FLName.append(index.siblingAtColumn(1).data().toString());
     FLName.append(" ");
@@ -132,23 +135,44 @@ void MainWindow::editRecord(const QModelIndex &index){
     getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = ?");
     getWorkFlow.bindValue(0, table->record(index.row()).value(6).toInt()); //RAW state value of worker
     getWorkFlow.exec();
+
     std::vector<std::pair<uint16_t, QString>> steps;
-    qDebug() << getWorkFlow.lastError();
+    std::vector<QString> stepNames;
+
     while (getWorkFlow.next()) {
 
         steps.push_back(std::make_pair(getWorkFlow.record().value(0).toInt(), //step id
                                        getWorkFlow.record().value(1).toString())); //step name
+        stepNames.push_back(getWorkFlow.record().value(1).toString());
     }
+
+    QSqlQuery getHistory;
+    getHistory.prepare("SELECT  `fid_step`, `comment`, `date` FROM `history` WHERE fid_worker = ?");
+    getHistory.bindValue(0, workerPK);
+    getHistory.exec();
+
+    QSqlQuery getWorkFlowNameMap("SELECT `id_step`, `sname` FROM `workflow`");
+    std::unordered_map<uint16_t, QString> idToName;
+    while(getWorkFlowNameMap.next()){
+        idToName[getWorkFlow.record().value(0).toInt()] = getWorkFlow.record().value(1).toString();
+    }
+
+    std::vector<std::tuple<QString, QString, QDateTime>> userHistory; //StepName, Comment, date
+    while (getHistory.next()) {
+        userHistory.push_back(
+                    std::make_tuple(
+                        idToName[getHistory.record().value(0).toInt()],
+                        getHistory.record().value(1).toString(),
+                        getHistory.record().value(2).toDateTime()
+                        )
+                    );
+    }
+
 
     EditRecord editDialog(this);
     editDialog.setFLName(FLName);
+    editDialog.setSteps(stepNames);
 
-    std::vector<QString> arg;
-    for (auto step : steps) {
-        arg.push_back(step.second);
-    }
-
-    editDialog.setSteps(arg);
     if(editDialog.exec() == QDialog::Accepted){
         QSqlQuery updateStatus;
         updateStatus.prepare("UPDATE `workers` SET `fd_state` = ? WHERE (`id_worker` = ?)");
