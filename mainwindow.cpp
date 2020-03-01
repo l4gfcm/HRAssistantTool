@@ -101,8 +101,8 @@ void MainWindow::addWorker(){
 
     NewWorker dialogNW(this);
     dialogNW.setVacancies(vacancies);
-    dialogNW.exec();
-    if(dialogNW.Accepted){
+
+    if(dialogNW.exec() == QDialog::Accepted){
         QSqlQuery insertToWorkers;
         insertToWorkers.prepare("INSERT INTO workers (id_worker, fname, lname, mphone, next_date, fd_vacancy, fd_state) "
                        "VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -149,8 +149,7 @@ void MainWindow::editRecord(const QModelIndex &index){
     }
 
     editDialog.setSteps(arg);
-    editDialog.exec();
-    if(editDialog.Accepted){
+    if(editDialog.exec() == QDialog::Accepted){
         QSqlQuery updateStatus;
         updateStatus.prepare("UPDATE `workers` SET `fd_state` = ? WHERE (`id_worker` = ?)");
         updateStatus.bindValue(0, steps[editDialog.getStateId()].first); //step id
