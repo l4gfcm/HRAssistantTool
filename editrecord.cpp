@@ -4,7 +4,8 @@
 #include <QRadioButton>
 #include <QDebug>
 #include <QPushButton>
-//#include;
+#include <QButtonGroup>
+
 
 EditRecord::EditRecord(QWidget *parent) :
     QDialog(parent),
@@ -17,9 +18,6 @@ EditRecord::EditRecord(QWidget *parent) :
 EditRecord::~EditRecord()
 {
     delete ui;
-    for (auto &button : buttons) {
-        delete button;
-    }
 }
 
 void EditRecord::setFLName(const QString &flname){
@@ -27,10 +25,12 @@ void EditRecord::setFLName(const QString &flname){
 }
 
 void EditRecord::setSteps(const std::vector<QString> &steps){
+    buttonsGroup = new QButtonGroup(this);
+    connect(buttonsGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &EditRecord::checkInput);
     for(size_t i = 0; i < steps.size(); i++){
         auto button = new QRadioButton(this);
-        buttons.push_back(button);
         button->setText(steps[i]);
+        buttonsGroup->addButton(button, i);
         ui->WorkflowButtons->addWidget(button);
     }
 }
@@ -44,24 +44,12 @@ QDateTime EditRecord::getNextDate(){
 }
 
 uint16_t EditRecord::getStateId(){
-    size_t i = 0;
-    while (i < buttons.size()) {
-        if(buttons[i]->isChecked()){
-            break;
-        }
-        i++;
-    }
-    return i;
+    return buttonsGroup->checkedId(); // -1 blocked by GUI
 }
 
 
 void EditRecord::checkInput(){
-    bool dataEntered = false;
-    for (auto &butt : buttons) {
-        if (butt->isChecked())
-            dataEntered = true;
-    }
-    if (!dataEntered){
+    if (buttonsGroup->checkedId() == -1){
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     }
     else {

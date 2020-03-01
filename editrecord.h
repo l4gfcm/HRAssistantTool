@@ -5,7 +5,7 @@
 #include <vector>
 
 class QRadioButton;
-
+class QButtonGroup;
 namespace Ui {
 class EditRecord;
 }
@@ -25,7 +25,8 @@ public:
     uint16_t getStateId();
 private:
     Ui::EditRecord *ui;
-    std::vector<QRadioButton *> buttons;
+    //std::vector<QRadioButton *> buttons;
+    QButtonGroup * buttonsGroup = nullptr;
 private slots:
     void checkInput();
 };
