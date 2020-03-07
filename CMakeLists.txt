@@ -38,6 +38,8 @@ add_executable(HRAssistantTool
     editrecord.cpp
     editrecord.h
     editrecord.ui
+    filter.cpp
+    filter.h
   )
 
 

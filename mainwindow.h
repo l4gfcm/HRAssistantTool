@@ -6,6 +6,7 @@
 
 class QSqlRelationalTableModel;
 class QSqlDatabase;
+class Filter;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,6 +26,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QSqlRelationalTableModel *table;
+    Filter *filterModel;
     bool connectDatabase();
     void initApp();
     bool saveToHistory(const int32_t &user, const int32_t &step, const QString &comment);

@@ -3,6 +3,7 @@
 
 #include "newworker.h"
 #include "editrecord.h"
+#include "filter.h"
 
 #include <QSqlRelationalTableModel>
 #include <QMessageBox>
@@ -59,25 +60,28 @@ bool MainWindow::connectDatabase(){
 }
 
 void MainWindow::initApp(){
-    table = new QSqlRelationalTableModel(nullptr, db);
-        table->setTable("workers");
+    table = new QSqlRelationalTableModel(this, db);
+    table->setTable("workers");
 
-        table->setHeaderData(1, Qt::Horizontal, "First name");
-        table->setHeaderData(2, Qt::Horizontal, "Last name");
-        table->setHeaderData(3, Qt::Horizontal, "Phone");
-        table->setHeaderData(4, Qt::Horizontal, "Next date");
-        table->setHeaderData(5, Qt::Horizontal, "Vacancy");
-        table->setHeaderData(6, Qt::Horizontal, "State");
-        table->setRelation(5, QSqlRelation("vacancies", "id_vacancy", "vname"));
-        table->setRelation(6, QSqlRelation("workflow", "id_step", "sname"));
+    table->setHeaderData(1, Qt::Horizontal, "First name");
+    table->setHeaderData(2, Qt::Horizontal, "Last name");
+    table->setHeaderData(3, Qt::Horizontal, "Phone");
+    table->setHeaderData(4, Qt::Horizontal, "Next date");
+    table->setHeaderData(5, Qt::Horizontal, "Vacancy");
+    table->setHeaderData(6, Qt::Horizontal, "State");
+    table->setRelation(5, QSqlRelation("vacancies", "id_vacancy", "vname"));
+    table->setRelation(6, QSqlRelation("workflow", "id_step", "sname"));
 
-        table->select();
+    table->select();
 
-        ui->table->setModel(table);
-        ui->table->setEditTriggers(QTableView::NoEditTriggers);
-        ui->table->setSelectionBehavior(QAbstractItemView::SelectRows);
-        ui->table->setColumnHidden(0, true);
-        ui->table->setSortingEnabled(true);
+    filterModel = new Filter(this);
+    filterModel->setSourceModel(table);
+
+    ui->table->setModel(filterModel);
+    ui->table->setEditTriggers(QTableView::NoEditTriggers);
+    ui->table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->table->setColumnHidden(0, true);
+    ui->table->setSortingEnabled(true);
 }
 bool MainWindow::saveToHistory(const int32_t &user, const int32_t &step, const QString &comment){
     QSqlQuery query("INSERT INTO history (id_history, fid_worker, comment, fid_step, date) "
