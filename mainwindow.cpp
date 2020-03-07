@@ -76,6 +76,7 @@ void MainWindow::initApp(){
 
     filterModel = new Filter(this);
     filterModel->setSourceModel(table);
+    connect(ui->filterLine, &QLineEdit::textChanged, filterModel, &Filter::filterTextChanged);
 
     ui->table->setModel(filterModel);
     ui->table->setEditTriggers(QTableView::NoEditTriggers);

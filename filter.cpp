@@ -24,5 +24,6 @@ bool Filter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) co
 }
 
 void Filter::filterTextChanged(const QString &mask){
-    setFilterRegExp(mask);
+
+    setFilterRegExp(QRegExp(mask, Qt::CaseInsensitive, QRegExp::RegExp));
 }

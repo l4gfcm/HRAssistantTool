@@ -6,6 +6,7 @@
 
 class Filter : public QSortFilterProxyModel
 {
+    Q_OBJECT
 public:
     Filter(QObject *parent = nullptr);
 public slots:

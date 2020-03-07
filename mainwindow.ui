@@ -61,6 +61,9 @@
       </attribute>
      </widget>
     </item>
+    <item>
+     <widget class="QLineEdit" name="filterLine"/>
+    </item>
    </layout>
   </widget>
   <widget class="QToolBar" name="toolBar">
