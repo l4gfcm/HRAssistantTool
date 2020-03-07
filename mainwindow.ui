@@ -62,7 +62,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="filterLine"/>
+     <widget class="QLineEdit" name="filterLine">
+      <property name="placeholderText">
+       <string>Filter</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
