@@ -11,7 +11,7 @@ class DBHandler
 {
 public:
     explicit DBHandler(QSqlDatabase &db);
-
+    virtual ~DBHandler();
     WorkerName getName(const QModelIndex &index);
     bool addWorker(const WorkerName &name, const QString &phone,
                    const QDateTime &nextDate, const uint16_t &vacancyId, const QString &comment);

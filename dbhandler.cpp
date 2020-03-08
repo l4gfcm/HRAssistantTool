@@ -12,6 +12,10 @@ DBHandler::DBHandler(QSqlDatabase &db):
 
 }
 
+DBHandler::~DBHandler(){
+
+}
+
 WorkerName DBHandler::getName(const QModelIndex &index){
     return std::make_pair(index.siblingAtColumn(1).data().toString(),
                           index.siblingAtColumn(2).data().toString()

@@ -36,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete filterModel;
+    delete table;
+    delete dbHandler;
 }
 
 bool MainWindow::connectDatabase(){
@@ -173,7 +176,7 @@ void MainWindow::deleteWorker(){
     WorkerName name = dbHandler->getName(ui->table->currentIndex());
 
     QMessageBox confirm(this);
-    confirm.setText(QString("Are you suce wont to delete ")
+    confirm.setText(QString("Are you suce want to delete ")
                     .append(name.first).append(" ").append(name.second).append("?"));
     confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
