@@ -46,6 +46,7 @@ bool MainWindow::connectDatabase(){
     db.setPassword("123456");
     if (db.open()){
         QMessageBox::information(this, "OK", "Database is connected");
+        dbHandler = new DBHandler(db);
         return true;}
     else{
         QMessageBox::critical(this, "Error!", "Database is not conected!");
@@ -90,15 +91,6 @@ void MainWindow::initApp(){
     connect(ui->table, &QTableView::doubleClicked,
           this, &MainWindow::editRecord);
 }
-bool MainWindow::saveToHistory(const int32_t &user, const int32_t &step, const QString &comment){
-    QSqlQuery query("INSERT INTO history (id_history, fid_worker, comment, fid_step, date) "
-                        "VALUES (?, ?, ?, ?, ?)");
-    query.bindValue(1, user);
-    query.bindValue(2, comment);
-    query.bindValue(3, step);
-    query.bindValue(4, QDateTime::currentDateTime());
-    return query.exec();
-}
 
 void MainWindow::addWorker(){
     QStringList vacancies;
@@ -115,19 +107,13 @@ void MainWindow::addWorker(){
     dialogNW.setVacancies(vacancies);
 
     if(dialogNW.exec() == QDialog::Accepted){
-        QSqlQuery insertToWorkers;
-        insertToWorkers.prepare("INSERT INTO workers (id_worker, fname, lname, mphone, next_date, fd_vacancy, fd_state) "
-                       "VALUES (?, ?, ?, ?, ?, ?, ?)");
-         //AutoIncrement
-        insertToWorkers.bindValue(1, dialogNW.getFirsName());
-        insertToWorkers.bindValue(2, dialogNW.getLastName());
-        insertToWorkers.bindValue(3, dialogNW.getPhoneNumber());
-        insertToWorkers.bindValue(4, dialogNW.getNextDateTime());
-        insertToWorkers.bindValue(5, indexToID[dialogNW.getVacancyIndex()]);
-        insertToWorkers.bindValue(6, 0); // New records get a start state
-        insertToWorkers.exec();
-
-        saveToHistory(insertToWorkers.lastInsertId().toInt(), 0, dialogNW.getComment());
+        dbHandler->addWorker(
+                    std::make_pair(dialogNW.getFirsName(), dialogNW.getLastName()),
+                    dialogNW.getPhoneNumber(),
+                    dialogNW.getNextDateTime(),
+                    indexToID[dialogNW.getVacancyIndex()],
+                    dialogNW.getComment()
+                    );
 
         table->select();
     }
@@ -136,11 +122,6 @@ void MainWindow::addWorker(){
 void MainWindow::editRecord(const QModelIndex &index){
 
     uint16_t workerPK = index.siblingAtColumn(0).data().toInt();
-
-    QString FLName;
-    FLName.append(index.siblingAtColumn(1).data().toString());
-    FLName.append(" ");
-    FLName.append(index.siblingAtColumn(2).data().toString());
 
     QSqlQuery getWorkFlow;
     getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = "
@@ -175,7 +156,7 @@ void MainWindow::editRecord(const QModelIndex &index){
                     );
     }
     EditRecord editDialog(this);
-    editDialog.setFLName(FLName);
+    editDialog.setName(dbHandler->getName(index));
     editDialog.setSteps(stepNames);
     editDialog.setHistory(userHistory);
     qDebug() << workerPK;
@@ -185,7 +166,7 @@ void MainWindow::editRecord(const QModelIndex &index){
         updateStatus.bindValue(0, steps[editDialog.getStateId()].first); //step id
         updateStatus.bindValue(1, workerPK); //id value of worker
         updateStatus.exec();
-        saveToHistory(workerPK, steps[editDialog.getStateId()].first, editDialog.getComment());
+        dbHandler->saveToHistory(workerPK, steps[editDialog.getStateId()].first, editDialog.getComment());
         table->select();
 
     }
@@ -193,14 +174,11 @@ void MainWindow::editRecord(const QModelIndex &index){
 }
 
 void MainWindow::deleteWorker(){
-    QString FLName;
-    FLName.append(ui->table->currentIndex().siblingAtColumn(1).data().toString());
-    FLName.append(" ");
-    FLName.append(ui->table->currentIndex().siblingAtColumn(2).data().toString());
+    WorkerName name = dbHandler->getName(ui->table->currentIndex());
 
     QMessageBox confirm(this);
     confirm.setText(QString("Are you suce wont to delete ")
-                    .append(FLName).append("?"));
+                    .append(name.first).append(" ").append(name.second).append("?"));
     confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
     if(confirm.exec() == QMessageBox::Yes){

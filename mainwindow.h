@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QSqlDatabase>
 
+#include "dbhandler.h"
+
 class QSqlRelationalTableModel;
 class QSqlDatabase;
 class Filter;
@@ -28,10 +30,9 @@ private:
     Ui::MainWindow *ui;
     QSqlRelationalTableModel *table;
     Filter *filterModel;
+    DBHandler *dbHandler;
     bool connectDatabase();
     void initApp();
-    bool saveToHistory(const int32_t &user, const int32_t &step, const QString &comment);
-
     void initMainBar();
 
     enum class Actions : uint8_t{

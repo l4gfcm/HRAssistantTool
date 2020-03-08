@@ -18,7 +18,7 @@ public:
     explicit EditRecord(QWidget *parent = nullptr);
     ~EditRecord();
 
-    void setFLName(const QString &flname);
+    void setName(const std::pair<QString, QString> &);
     void setSteps (const std::vector<QString> &steps);
     QDateTime getNextDate();
     QString getComment();

@@ -20,8 +20,8 @@ EditRecord::~EditRecord()
     delete ui;
 }
 
-void EditRecord::setFLName(const QString &flname){
-    setWindowTitle(flname);
+void EditRecord::setName(const std::pair<QString, QString> & name){
+    setWindowTitle(QString(name.first).append(" ").append(name.second));
 }
 
 void EditRecord::setSteps(const std::vector<QString> &steps){
