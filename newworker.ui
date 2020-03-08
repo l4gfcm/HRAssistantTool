@@ -94,6 +94,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>fnameLine</tabstop>
+  <tabstop>lnameLine</tabstop>
+  <tabstop>phoneLine</tabstop>
+  <tabstop>vacancyDD</tabstop>
+  <tabstop>dateTime</tabstop>
+  <tabstop>commentEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

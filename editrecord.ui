@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="WorkFlow">
       <attribute name="title">
@@ -129,6 +129,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>nextDateTime</tabstop>
+  <tabstop>commentEdit</tabstop>
+  <tabstop>workFlow</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

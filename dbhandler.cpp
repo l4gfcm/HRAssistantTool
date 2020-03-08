@@ -5,6 +5,8 @@
 #include <QSqlQuery>
 #include <QDateTime>
 #include <QSqlRecord>
+#include <QDebug>
+#include <QSqlError>
 
 DBHandler::DBHandler(QSqlDatabase &db):
     dataBase{db}
@@ -48,9 +50,11 @@ bool DBHandler::saveToHistory(const uint16_t &worker, const uint16_t &step, cons
 Vacancies DBHandler::getVacancies(){
     Vacancies vacancies;
     QSqlQuery query(dataBase);
-    query.prepare("SELECT * FROM vacancies");
-    for (uint16_t index = 0; query.next(); index++) {
-        vacancies.push_back(std::make_pair(query.value(0).toUInt(), query.value(1).toString()));
+    query.prepare("SELECT * FROM `vacancies`");
+    query.exec();
+
+    while (query.next()) {
+        vacancies.push_back(std::make_pair(query.value(0).toUInt(), query.value(1).toString()));;
     }
     return vacancies;
 }

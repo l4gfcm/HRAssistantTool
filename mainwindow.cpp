@@ -96,6 +96,7 @@ void MainWindow::addWorker(){
     QStringList vacList;
     for (auto vacancy : vacancies) {
         vacList.push_back(vacancy.second);
+        qDebug() << vacancy;
     }
 
     NewWorker dialogNW(this);
