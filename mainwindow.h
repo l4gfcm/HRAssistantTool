@@ -23,6 +23,7 @@ public:
 private slots:
     void addWorker();
     void editRecord(const QModelIndex &index);
+    void deleteWorker();
 private:
     Ui::MainWindow *ui;
     QSqlRelationalTableModel *table;
@@ -31,6 +32,16 @@ private:
     void initApp();
     bool saveToHistory(const int32_t &user, const int32_t &step, const QString &comment);
 
-    QAction *addWorkerAction;
+    void initMainBar();
+
+    enum class Actions : uint8_t{
+        AddWorker,
+        DeleteWorker
+    };
+    constexpr size_t at(const Actions value) const{
+        return static_cast<size_t>(value);
+    }
+
+    std::vector<QAction*> mainBarActions;
 };
 #endif // MAINWINDOW_H

@@ -30,13 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     if(! connectDatabase())
         qApp->quit();
     initApp();
-
-    addWorkerAction = new QAction("Add worker",this);
-    ui->toolBar->addAction(addWorkerAction);
-    connect(addWorkerAction, &QAction::triggered, this, &MainWindow::addWorker);
-
-    connect(ui->table, &QTableView::doubleClicked,
-          this, &MainWindow::editRecord);
+    initMainBar();
 }
 
 MainWindow::~MainWindow()
@@ -57,6 +51,15 @@ bool MainWindow::connectDatabase(){
         QMessageBox::critical(this, "Error!", "Database is not conected!");
         return false;
     }
+}
+
+void MainWindow::initMainBar(){
+    mainBarActions.push_back(new QAction("Add worker",this));
+    ui->toolBar->addAction(mainBarActions[at(Actions::AddWorker)]);
+    connect(mainBarActions[at(Actions::AddWorker)], &QAction::triggered, this, &MainWindow::addWorker);
+    mainBarActions.push_back(new QAction("Delete worker",this));
+    ui->toolBar->addAction(mainBarActions[at(Actions::DeleteWorker)]);
+    connect(mainBarActions[at(Actions::DeleteWorker)], &QAction::triggered, this, &MainWindow::deleteWorker);
 }
 
 void MainWindow::initApp(){
@@ -83,6 +86,9 @@ void MainWindow::initApp(){
     ui->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->table->setColumnHidden(0, true);
     ui->table->setSortingEnabled(true);
+
+    connect(ui->table, &QTableView::doubleClicked,
+          this, &MainWindow::editRecord);
 }
 bool MainWindow::saveToHistory(const int32_t &user, const int32_t &step, const QString &comment){
     QSqlQuery query("INSERT INTO history (id_history, fid_worker, comment, fid_step, date) "
@@ -129,7 +135,7 @@ void MainWindow::addWorker(){
 
 void MainWindow::editRecord(const QModelIndex &index){
 
-    uint16_t workerPK = table->record(index.row()).value(0).toInt();
+    uint16_t workerPK = index.siblingAtColumn(0).data().toInt();
 
     QString FLName;
     FLName.append(index.siblingAtColumn(1).data().toString());
@@ -172,7 +178,7 @@ void MainWindow::editRecord(const QModelIndex &index){
     editDialog.setFLName(FLName);
     editDialog.setSteps(stepNames);
     editDialog.setHistory(userHistory);
-
+    qDebug() << workerPK;
     if(editDialog.exec() == QDialog::Accepted){
         QSqlQuery updateStatus;
         updateStatus.prepare("UPDATE `workers` SET `fd_state` = ? WHERE (`id_worker` = ?)");
@@ -184,4 +190,28 @@ void MainWindow::editRecord(const QModelIndex &index){
 
     }
 
+}
+
+void MainWindow::deleteWorker(){
+    QString FLName;
+    FLName.append(ui->table->currentIndex().siblingAtColumn(1).data().toString());
+    FLName.append(" ");
+    FLName.append(ui->table->currentIndex().siblingAtColumn(2).data().toString());
+
+    QMessageBox confirm(this);
+    confirm.setText(QString("Are you suce wont to delete ")
+                    .append(FLName).append("?"));
+    confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+    if(confirm.exec() == QMessageBox::Yes){
+    QSqlQuery deleteWorker;
+    deleteWorker.prepare("DELETE FROM `workers` WHERE (`id_worker` = ?)");
+    deleteWorker.bindValue(0, ui->table->currentIndex().siblingAtColumn(0).data().toInt());
+    deleteWorker.exec();
+    deleteWorker.clear();
+    deleteWorker.prepare("DELETE FROM `history` WHERE (`fid_worker` = ?)");
+    deleteWorker.bindValue(0, ui->table->currentIndex().siblingAtColumn(0).data().toInt());
+    deleteWorker.exec();
+    table->select();
+    }
 }
