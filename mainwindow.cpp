@@ -7,17 +7,10 @@
 
 #include <QSqlRelationalTableModel>
 #include <QMessageBox>
-#include <QSqlRelationalDelegate>
-#include <QSqlTableModel>
 #include <QDial>
-#include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QDateTime>
-#include <QSqlRecord>
-#include <QSqlError>
 #include <QDebug>
 #include <QSqlIndex>
-#include <QSqlRecord>
 #include <vector>
 #include <utility>
 #include <unordered_map>
@@ -123,16 +116,22 @@ void MainWindow::addWorker(){
 
 void MainWindow::editRecord(const QModelIndex &index){
 
-    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index);
+    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt());
     QStringList stepList;
     for (const auto &step : workerWorkFlow) {
         stepList.push_back(step.second);
     }
 
+    WorkerName name = std::make_pair(
+                ui->table->currentIndex().siblingAtColumn(1).data().toString(),
+                ui->table->currentIndex().siblingAtColumn(2).data().toString()
+                );
+
+
     EditRecord editDialog(this);
-    editDialog.setName(dbHandler->getName(index));
+    editDialog.setName(name);
     editDialog.setSteps(stepList);
-    editDialog.setHistory(dbHandler->getWorkerHistory(index));
+    editDialog.setHistory(dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt()));
 
     if(editDialog.exec() == QDialog::Accepted){
         dbHandler->updateWorker(index.siblingAtColumn(0).data().toUInt(),
@@ -144,7 +143,10 @@ void MainWindow::editRecord(const QModelIndex &index){
 }
 
 void MainWindow::deleteWorker(){
-    WorkerName name = dbHandler->getName(ui->table->currentIndex());
+    WorkerName name = std::make_pair(
+                ui->table->currentIndex().siblingAtColumn(1).data().toString(),
+                ui->table->currentIndex().siblingAtColumn(2).data().toString()
+                );
 
     QMessageBox confirm(this);
     confirm.setText(QString("Are you sure want to delete ")
@@ -152,14 +154,7 @@ void MainWindow::deleteWorker(){
     confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
     if(confirm.exec() == QMessageBox::Yes){
-    QSqlQuery deleteWorker;
-    deleteWorker.prepare("DELETE FROM `workers` WHERE (`id_worker` = ?)");
-    deleteWorker.bindValue(0, ui->table->currentIndex().siblingAtColumn(0).data().toInt());
-    deleteWorker.exec();
-    deleteWorker.clear();
-    deleteWorker.prepare("DELETE FROM `history` WHERE (`fid_worker` = ?)");
-    deleteWorker.bindValue(0, ui->table->currentIndex().siblingAtColumn(0).data().toInt());
-    deleteWorker.exec();
-    table->select();
+        dbHandler->deleteWorker(ui->table->currentIndex().siblingAtColumn(0).data().toUInt());
+        table->select();
     }
 }

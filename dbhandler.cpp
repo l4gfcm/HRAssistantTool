@@ -16,12 +16,6 @@ DBHandler::~DBHandler(){
 
 }
 
-WorkerName DBHandler::getName(const QModelIndex &index){
-    return std::make_pair(index.siblingAtColumn(1).data().toString(),
-                          index.siblingAtColumn(2).data().toString()
-                );
-}
-
 bool DBHandler::addWorker(const WorkerName &name, const QString &phone,
                           const QDateTime &nextDate, const uint16_t &vacancy, const QString &comment){
     QSqlQuery query;
@@ -40,11 +34,11 @@ bool DBHandler::addWorker(const WorkerName &name, const QString &phone,
 
 }
 
-bool DBHandler::saveToHistory(const uint16_t &user, const uint16_t &step, const QString &comment){
+bool DBHandler::saveToHistory(const uint16_t &worker, const uint16_t &step, const QString &comment){
     QSqlQuery query(dataBase);
     query.prepare("INSERT INTO history (id_history, fid_worker, comment, fid_step, date) "
                   "VALUES (?, ?, ?, ?, ?)");
-    query.bindValue(1, user);
+    query.bindValue(1, worker);
     query.bindValue(2, comment);
     query.bindValue(3, step);
     query.bindValue(4, QDateTime::currentDateTime());
@@ -61,12 +55,12 @@ Vacancies DBHandler::getVacancies(){
     return vacancies;
 }
 
-WorkFlow DBHandler::getWorkerWorkflow(const QModelIndex &index){
+WorkFlow DBHandler::getWorkerWorkflow(const uint16_t &worker){
     WorkFlow result;
     QSqlQuery query(dataBase);
     query.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = "
                         "(SELECT fd_state FROM `workers` WHERE `id_worker` = ?)");
-    query.bindValue(0, index.siblingAtColumn(0).data().toInt());
+    query.bindValue(0, worker);
     query.exec();
     while (query.next()) {
         result.push_back(std::make_pair(query.record().value(0).toInt(), //step id
@@ -76,11 +70,11 @@ WorkFlow DBHandler::getWorkerWorkflow(const QModelIndex &index){
     return result;
 }
 
-History DBHandler::getWorkerHistory(const QModelIndex &index){
+History DBHandler::getWorkerHistory(const uint16_t &worker){
     QSqlQuery query(dataBase);
     query.prepare("SELECT `workflow`.`sname`, `comment`, `date` FROM `history` "
                        "INNER JOIN `workflow` ON `history`.`fid_step` = `workflow`.`id_step` WHERE fid_worker = ?");
-    query.bindValue(0, index.siblingAtColumn(0).data().toUInt());
+    query.bindValue(0, worker);
     query.exec();
 
     History userHistory; //StepName, Comment, date
@@ -103,5 +97,20 @@ bool DBHandler::updateWorker(const uint16_t &worker, const uint16_t &step, const
     query.bindValue(1, worker); //id value of worker
     return query.exec() &&
             saveToHistory(worker, step, comment);
+
+}
+
+bool DBHandler::deleteFromHistory(const uint16_t &worker){
+    QSqlQuery query(dataBase);
+    query.prepare("DELETE FROM `history` WHERE (`fid_worker` = ?)");
+    query.bindValue(0, worker);
+    return query.exec();
+}
+bool DBHandler::deleteWorker(const uint16_t &worker){
+    QSqlQuery query;
+    query.prepare("DELETE FROM `workers` WHERE (`id_worker` = ?)");
+    query.bindValue(0, worker);
+    return query.exec() &&
+            deleteFromHistory(worker);
 
 }

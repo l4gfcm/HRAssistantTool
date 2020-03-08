@@ -14,17 +14,17 @@ class DBHandler
 public:
     explicit DBHandler(QSqlDatabase &db);
     virtual ~DBHandler();
-    WorkerName getName(const QModelIndex &index);
     bool addWorker(const WorkerName &name, const QString &phone,
                    const QDateTime &nextDate, const uint16_t &vacancy, const QString &comment);
-    bool saveToHistory(const uint16_t &user, const uint16_t &step, const QString &comment);
     Vacancies getVacancies();
-    WorkFlow getWorkerWorkflow(const QModelIndex &index);
-    History getWorkerHistory(const QModelIndex &index);
+    WorkFlow getWorkerWorkflow(const uint16_t &worker);
+    History getWorkerHistory(const uint16_t &worker);
     bool updateWorker(const uint16_t &worker, const uint16_t &step, const QString &comment);
+    bool deleteWorker(const uint16_t &worker);
 
 private:
-
+    bool saveToHistory(const uint16_t &worker, const uint16_t &step, const QString &comment);
+    bool deleteFromHistory(const uint16_t &worker);
     QSqlDatabase &dataBase;
 };
 
