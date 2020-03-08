@@ -4,6 +4,7 @@
 #include "newworker.h"
 #include "editrecord.h"
 #include "filter.h"
+#include "managevacancies.h"
 
 #include <QSqlRelationalTableModel>
 #include <QMessageBox>
@@ -54,12 +55,17 @@ bool MainWindow::connectDatabase(){
 }
 
 void MainWindow::initMainBar(){
-    mainBarActions.push_back(new QAction("Add worker",this));
+    mainBarActions.push_back(new QAction("Add worker", this));
     ui->toolBar->addAction(mainBarActions[at(Actions::AddWorker)]);
     connect(mainBarActions[at(Actions::AddWorker)], &QAction::triggered, this, &MainWindow::addWorker);
-    mainBarActions.push_back(new QAction("Delete worker",this));
+
+    mainBarActions.push_back(new QAction("Delete worker", this));
     ui->toolBar->addAction(mainBarActions[at(Actions::DeleteWorker)]);
     connect(mainBarActions[at(Actions::DeleteWorker)], &QAction::triggered, this, &MainWindow::deleteWorker);
+
+    mainBarActions.push_back(new QAction("Manage Vacancies", this));
+    ui->toolBar->addAction(mainBarActions[at(Actions::ManageVacancies)]);
+    connect(mainBarActions[at(Actions::ManageVacancies)], &QAction::triggered, this, &MainWindow::manageVacancies);
 }
 
 void MainWindow::initApp(){
@@ -158,4 +164,17 @@ void MainWindow::deleteWorker(){
         dbHandler->deleteWorker(ui->table->currentIndex().siblingAtColumn(0).data().toUInt());
         table->select();
     }
+}
+
+void MainWindow::manageVacancies(){
+    ManageVacancies dialog;
+    Vacancies vacancies = dbHandler->getVacancies();
+    QStringList vacList;
+
+    for (const auto &vac : vacancies) {
+        vacList.push_back(vac.second);
+    }
+
+    dialog.setVacancies(vacList);
+    dialog.exec();
 }

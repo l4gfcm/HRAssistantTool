@@ -42,6 +42,9 @@ add_executable(HRAssistantTool
     filter.h
     dbhandler.cpp
     dbhandler.h
+    managevacancies.cpp
+    managevacancies.h
+    managevacancies.ui
   )
 
 

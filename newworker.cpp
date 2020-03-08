@@ -49,7 +49,6 @@ QDateTime NewWorker::getNextDateTime(){
 }
 
 void NewWorker::checkInput(){
-    qDebug() << "sfsfs";
     if(
             ui->fnameLine->text().isEmpty() ||
             ui->lnameLine->text().isEmpty() ||

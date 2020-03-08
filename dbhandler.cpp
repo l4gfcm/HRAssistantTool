@@ -110,6 +110,7 @@ bool DBHandler::deleteFromHistory(const uint16_t &worker){
     query.bindValue(0, worker);
     return query.exec();
 }
+
 bool DBHandler::deleteWorker(const uint16_t &worker){
     QSqlQuery query;
     query.prepare("DELETE FROM `workers` WHERE (`id_worker` = ?)");
