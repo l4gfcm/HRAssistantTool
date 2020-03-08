@@ -31,6 +31,7 @@ private:
     QSqlRelationalTableModel *table;
     Filter *filterModel;
     DBHandler *dbHandler;
+    std::vector<QAction*> mainBarActions;
     bool connectDatabase();
     void initApp();
     void initMainBar();
@@ -42,7 +43,5 @@ private:
     constexpr size_t at(const Actions value) const{
         return static_cast<size_t>(value);
     }
-
-    std::vector<QAction*> mainBarActions;
 };
 #endif // MAINWINDOW_H

@@ -39,6 +39,9 @@ MainWindow::~MainWindow()
     delete filterModel;
     delete table;
     delete dbHandler;
+    for (auto &item  : mainBarActions) {
+        delete item;
+    }
 }
 
 bool MainWindow::connectDatabase(){
