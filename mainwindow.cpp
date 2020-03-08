@@ -93,25 +93,21 @@ void MainWindow::initApp(){
 }
 
 void MainWindow::addWorker(){
-    QStringList vacancies;
-    std::vector<uint16_t> indexToID;
-    QSqlQuery getVacancy("SELECT * FROM vacancies");
-    int fieldNo = getVacancy.record().indexOf("vname");
-    for (uint16_t index = 0; getVacancy.next(); index++) {
-        QString vacancy = getVacancy.value(fieldNo).toString();
-        vacancies.push_back(vacancy);
-        indexToID.push_back(getVacancy.record().value(0).toInt());
+    Vacancies vacancies = dbHandler->getVacancies();
+    QStringList vacList;
+    for (auto vacancy : vacancies) {
+        vacList.push_back(vacancy.second);
     }
 
     NewWorker dialogNW(this);
-    dialogNW.setVacancies(vacancies);
+    dialogNW.setVacancies(vacList);
 
     if(dialogNW.exec() == QDialog::Accepted){
         dbHandler->addWorker(
                     std::make_pair(dialogNW.getFirsName(), dialogNW.getLastName()),
                     dialogNW.getPhoneNumber(),
                     dialogNW.getNextDateTime(),
-                    indexToID[dialogNW.getVacancyIndex()],
+                    vacancies[dialogNW.getVacancyIndex()].first,
                     dialogNW.getComment()
                     );
 
