@@ -123,52 +123,20 @@ void MainWindow::addWorker(){
 
 void MainWindow::editRecord(const QModelIndex &index){
 
-    uint16_t workerPK = index.siblingAtColumn(0).data().toInt();
-
-    QSqlQuery getWorkFlow;
-    getWorkFlow.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = "
-                        "(SELECT fd_state FROM `workers` WHERE `id_worker` = ?)");
-    getWorkFlow.bindValue(0, index.siblingAtColumn(0).data().toInt());
-    getWorkFlow.exec();
-
-    std::vector<std::pair<uint16_t, QString>> steps;
-    std::vector<QString> stepNames;
-
-    while (getWorkFlow.next()) {
-
-        steps.push_back(std::make_pair(getWorkFlow.record().value(0).toInt(), //step id
-                                       getWorkFlow.record().value(1).toString())); //step name
-        stepNames.push_back(getWorkFlow.record().value(1).toString());
+    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index);
+    QStringList stepList;
+    for (const auto &step : workerWorkFlow) {
+        stepList.push_back(step.second);
     }
 
-    QSqlQuery getHistory;
-    getHistory.prepare("SELECT `workflow`.`sname`, `comment`, `date` FROM `history` "
-                       "INNER JOIN `workflow` ON `history`.`fid_step` = `workflow`.`id_step` WHERE fid_worker = ?");
-    getHistory.bindValue(0, workerPK);
-    getHistory.exec();
-
-    std::vector<std::tuple<QString, QString, QDateTime>> userHistory; //StepName, Comment, date
-    while (getHistory.next()) {
-        userHistory.push_back(
-                    std::make_tuple(
-                        getHistory.record().value(0).toString(),
-                        getHistory.record().value(1).toString(),
-                        getHistory.record().value(2).toDateTime()
-                        )
-                    );
-    }
     EditRecord editDialog(this);
     editDialog.setName(dbHandler->getName(index));
-    editDialog.setSteps(stepNames);
-    editDialog.setHistory(userHistory);
-    qDebug() << workerPK;
+    editDialog.setSteps(stepList);
+    editDialog.setHistory(dbHandler->getWorkerHistory(index));
+
     if(editDialog.exec() == QDialog::Accepted){
-        QSqlQuery updateStatus;
-        updateStatus.prepare("UPDATE `workers` SET `fd_state` = ? WHERE (`id_worker` = ?)");
-        updateStatus.bindValue(0, steps[editDialog.getStateId()].first); //step id
-        updateStatus.bindValue(1, workerPK); //id value of worker
-        updateStatus.exec();
-        dbHandler->saveToHistory(workerPK, steps[editDialog.getStateId()].first, editDialog.getComment());
+        dbHandler->updateWorker(index.siblingAtColumn(0).data().toUInt(),
+                                 workerWorkFlow[editDialog.getStateId()].first, editDialog.getComment());
         table->select();
 
     }
@@ -179,7 +147,7 @@ void MainWindow::deleteWorker(){
     WorkerName name = dbHandler->getName(ui->table->currentIndex());
 
     QMessageBox confirm(this);
-    confirm.setText(QString("Are you suce want to delete ")
+    confirm.setText(QString("Are you sure want to delete ")
                     .append(name.first).append(" ").append(name.second).append("?"));
     confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 

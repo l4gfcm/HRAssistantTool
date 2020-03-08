@@ -24,14 +24,16 @@ void EditRecord::setName(const std::pair<QString, QString> & name){
     setWindowTitle(QString(name.first).append(" ").append(name.second));
 }
 
-void EditRecord::setSteps(const std::vector<QString> &steps){
+void EditRecord::setSteps(const QStringList &steps){
     buttonsGroup = new QButtonGroup(this);
     connect(buttonsGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &EditRecord::checkInput);
-    for(size_t i = 0; i < steps.size(); i++){
+    uint16_t index = 0;
+    for(const auto& step : steps ){
         auto button = new QRadioButton(this);
-        button->setText(steps[i]);
-        buttonsGroup->addButton(button, i);
+        button->setText(step);
+        buttonsGroup->addButton(button, index);
         ui->WorkflowButtons->addWidget(button);
+        ++index;
     }
 }
 

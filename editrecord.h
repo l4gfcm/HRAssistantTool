@@ -19,7 +19,7 @@ public:
     ~EditRecord();
 
     void setName(const std::pair<QString, QString> &);
-    void setSteps (const std::vector<QString> &steps);
+    void setSteps (const QStringList &steps);
     QDateTime getNextDate();
     QString getComment();
     uint16_t getStateId();
