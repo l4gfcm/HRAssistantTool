@@ -5,6 +5,7 @@
 #include "editrecord.h"
 #include "filter.h"
 #include "managevacancies.h"
+#include "restartworkflow.h"
 
 #include <QSqlRelationalTableModel>
 #include <QMessageBox>
@@ -14,7 +15,6 @@
 #include <QSqlIndex>
 #include <vector>
 #include <utility>
-#include <unordered_map>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -66,6 +66,10 @@ void MainWindow::initMainBar(){
     mainBarActions.push_back(new QAction("Manage Vacancies", this));
     ui->toolBar->addAction(mainBarActions[at(Actions::ManageVacancies)]);
     connect(mainBarActions[at(Actions::ManageVacancies)], &QAction::triggered, this, &MainWindow::manageVacancies);
+
+    mainBarActions.push_back(new QAction("Restart Workflow", this));
+    ui->toolBar->addAction(mainBarActions[at(Actions::RestartWorkflow)]);
+    connect(mainBarActions[at(Actions::RestartWorkflow)], &QAction::triggered, this, &MainWindow::restartWorkflow);
 }
 
 void MainWindow::initApp(){
@@ -195,4 +199,36 @@ void MainWindow::manageVacancies(){
     }
     }
     table->select();
+}
+
+void MainWindow::restartWorkflow(){
+    const auto workerPK = ui->table->currentIndex().siblingAtColumn(0).data().toUInt();
+    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK);
+
+    Vacancies vacansies = dbHandler->getVacancies();
+    QStringList vacanciesNames;
+    uint16_t currentVacancyIndex = 0;
+
+    for(size_t i  = 0; i < vacansies.size(); i++){
+        vacanciesNames.push_back(vacansies[i].second);
+        if(workerVacancyKey == vacansies[i].first){
+            currentVacancyIndex = i;
+        }
+    }
+
+    RestartWorkflow restartDilog(this);
+    restartDilog.setVacancies(vacanciesNames,
+                              currentVacancyIndex);
+    restartDilog.setWorkerName(std::make_pair(
+                ui->table->currentIndex().siblingAtColumn(1).data().toString(),
+                ui->table->currentIndex().siblingAtColumn(2).data().toString())
+                );
+    if(restartDilog.exec() == QDialog::Accepted){
+        dbHandler->restartWorkflow(
+                    ui->table->currentIndex().siblingAtColumn(0).data().toUInt(),
+                    vacansies[restartDilog.getVacancy()].first,
+                    restartDilog.getNextDate()
+                    );
+        table->select();
+    }
 }

@@ -45,6 +45,9 @@ add_executable(HRAssistantTool
     managevacancies.cpp
     managevacancies.h
     managevacancies.ui
+    restartworkflow.cpp
+    restartworkflow.h
+    restartworkflow.ui
   )
 
 

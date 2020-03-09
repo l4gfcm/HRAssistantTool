@@ -27,6 +27,7 @@ private slots:
     void editRecord(const QModelIndex &index);
     void deleteWorker();
     void manageVacancies();
+    void restartWorkflow();
 private:
     Ui::MainWindow *ui;
     QSqlRelationalTableModel *table;
@@ -40,7 +41,8 @@ private:
     enum class Actions : uint8_t{
         AddWorker,
         DeleteWorker,
-        ManageVacancies
+        ManageVacancies,
+        RestartWorkflow
     };
     constexpr size_t at(const Actions value) const{
         return static_cast<size_t>(value);

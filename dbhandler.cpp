@@ -5,8 +5,7 @@
 #include <QSqlQuery>
 #include <QDateTime>
 #include <QSqlRecord>
-#include <QDebug>
-#include <QSqlError>
+
 
 DBHandler::DBHandler(QSqlDatabase &db):
     dataBase{db}
@@ -136,4 +135,23 @@ bool DBHandler::deleteVacancies(const std::list<uint16_t> &vacList){
     query.prepare("DELETE FROM `vacancies` WHERE (`id_vacancy` = ?)");
     query.addBindValue(list);
     return query.execBatch();
+}
+
+bool DBHandler::restartWorkflow(const uint16_t &worker, const uint16_t &vacancy, const QDateTime &nextDate){
+    QSqlQuery query(dataBase);
+    query.prepare("UPDATE `workers` SET `next_date` = ?, `fd_vacancy` = ?, "
+                  "`fd_state` = '0' WHERE (`id_worker` = ?)");
+    query.bindValue(0, nextDate);
+    query.bindValue(1, vacancy);
+    query.bindValue(2, worker);
+    return query.exec();
+}
+
+uint16_t DBHandler::getWorkerVacancy(const uint16_t &worker){
+    QSqlQuery query(dataBase);
+    query.prepare("SELECT `fd_vacancy` FROM `workers` WHERE (`id_worker` = ?)");
+    query.bindValue(0, worker);
+    query.exec();
+    query.next();
+    return query.record().value(0).toUInt();
 }

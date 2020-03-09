@@ -12,6 +12,7 @@ EditRecord::EditRecord(QWidget *parent) :
     ui(new Ui::EditRecord)
 {
     ui->setupUi(this);
+    ui->nextDateTime->setDate(QDate::currentDate());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 }
 

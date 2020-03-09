@@ -25,6 +25,8 @@ public:
     bool deleteWorker(const uint16_t &worker);
     bool addVacancy(const QString &vacName);
     bool deleteVacancies(const std::list<uint16_t> &vacList);
+    bool restartWorkflow(const uint16_t &worker, const uint16_t &vacancy, const QDateTime &nextDate);
+    uint16_t getWorkerVacancy(const uint16_t &worker);
 private:
     bool saveToHistory(const uint16_t &worker, const uint16_t &step, const QString &comment);
     bool deleteFromHistory(const uint16_t &worker);
