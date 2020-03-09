@@ -112,10 +112,28 @@ bool DBHandler::deleteFromHistory(const uint16_t &worker){
 }
 
 bool DBHandler::deleteWorker(const uint16_t &worker){
-    QSqlQuery query;
+    QSqlQuery query(dataBase);
     query.prepare("DELETE FROM `workers` WHERE (`id_worker` = ?)");
     query.bindValue(0, worker);
     return query.exec() &&
             deleteFromHistory(worker);
 
+}
+
+bool DBHandler::addVacancy(const QString &vacName){
+    QSqlQuery query(dataBase);
+    query.prepare("INSERT INTO `vacancies` (`id_vacancy`, `vname`) VALUES (?, ?)");
+    query.bindValue(1, vacName);
+    return query.exec();
+}
+
+bool DBHandler::deleteVacancies(const std::list<uint16_t> &vacList){
+    QVariantList list;
+    for (const auto& item : vacList) {
+        list.push_back(item);
+    }
+    QSqlQuery query(dataBase);
+    query.prepare("DELETE FROM `vacancies` WHERE (`id_vacancy` = ?)");
+    query.addBindValue(list);
+    return query.execBatch();
 }

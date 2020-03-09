@@ -94,6 +94,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>newVacancyName</tabstop>
+  <tabstop>deleteVacancy</tabstop>
+  <tabstop>addVacancy</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

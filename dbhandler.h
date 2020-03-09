@@ -1,6 +1,8 @@
 #ifndef DBHANDLER_H
 #define DBHANDLER_H
+
 #include <QSqlDatabase>
+#include <list>
 
 class QModelIndex;
 class QDateTime;
@@ -21,7 +23,8 @@ public:
     History getWorkerHistory(const uint16_t &worker);
     bool updateWorker(const uint16_t &worker, const uint16_t &step, const QString &comment);
     bool deleteWorker(const uint16_t &worker);
-
+    bool addVacancy(const QString &vacName);
+    bool deleteVacancies(const std::list<uint16_t> &vacList);
 private:
     bool saveToHistory(const uint16_t &worker, const uint16_t &step, const QString &comment);
     bool deleteFromHistory(const uint16_t &worker);

@@ -8,8 +8,11 @@ ManageVacancies::ManageVacancies(QWidget *parent) :
     ui(new Ui::ManageVacancies)
 {
     ui->setupUi(this);
+    ui->addVacancy->setDisabled(true);
+    ui->deleteVacancy->setDisabled(true);
     connect(ui->addVacancy, &QAbstractButton::clicked, this, &ManageVacancies::addVacancy);
     connect(ui->deleteVacancy, &QAbstractButton::clicked, this, &ManageVacancies::deleteVacancy);
+    connect(ui->newVacancyName, &QLineEdit::textChanged, this, &ManageVacancies::checkAddInput);
 }
 
 ManageVacancies::~ManageVacancies()
@@ -21,6 +24,7 @@ void ManageVacancies::setVacancies(const QStringList &vacancies){
     for(const auto &vac : vacancies){
        vacList.push_back(new QCheckBox(vac, this));
        ui->vacanciesList->addWidget(vacList.back());
+       connect(vacList.back(), &QCheckBox::toggled, this, &ManageVacancies::checkDeleteInput);
     }
 }
 
@@ -52,9 +56,36 @@ void ManageVacancies::addVacancy(){
 }
 void ManageVacancies::deleteVacancy(){
     if(
-    QMessageBox(QMessageBox::Question, "Delete vacancy", "Are you sure want to delete selected vacancies?",
+    QMessageBox(QMessageBox::Warning, "Delete vacancies", "Are you sure want to delete selected vacancies?\n"
+                "It will delete all records that contain the vacancies.",
                 QMessageBox::Ok | QMessageBox::Cancel, this).exec() == QMessageBox::Ok){
         command = CommandType::Delete;
         this->close();
     }
+}
+
+QString ManageVacancies::getVacancyName(){
+    return ui->newVacancyName->text();
+}
+
+void ManageVacancies::checkAddInput(){
+    if(!ui->newVacancyName->text().isEmpty())
+        ui->addVacancy->setEnabled(true);
+    else
+        ui->addVacancy->setEnabled(false);
+}
+
+void ManageVacancies::checkDeleteInput(){
+    bool hasSelection = false;
+    for (const auto &item : vacList){
+        if(item->isChecked()){
+            hasSelection = true;
+            break;
+        }
+    }
+
+    if(hasSelection)
+        ui->deleteVacancy->setEnabled(true);
+    else
+        ui->deleteVacancy->setEnabled(false);
 }

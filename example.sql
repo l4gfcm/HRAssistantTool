@@ -35,7 +35,7 @@ CREATE TABLE `history` (
   KEY `fk_history_user` (`fid_worker`),
   CONSTRAINT `fk_history_step` FOREIGN KEY (`fid_step`) REFERENCES `workflow` (`id_step`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_history_user` FOREIGN KEY (`fid_worker`) REFERENCES `workers` (`id_worker`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,7 +58,7 @@ CREATE TABLE `vacancies` (
   `id_vacancy` int(11) NOT NULL AUTO_INCREMENT,
   `vname` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id_vacancy`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,7 +67,7 @@ CREATE TABLE `vacancies` (
 
 LOCK TABLES `vacancies` WRITE;
 /*!40000 ALTER TABLE `vacancies` DISABLE KEYS */;
-INSERT INTO `vacancies` VALUES (0,'Developer'),(2,'HR');
+INSERT INTO `vacancies` VALUES (0,'Developer'),(1,'HR');
 /*!40000 ALTER TABLE `vacancies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -87,11 +87,11 @@ CREATE TABLE `workers` (
   `fd_vacancy` int(11) NOT NULL,
   `fd_state` int(11) NOT NULL,
   PRIMARY KEY (`id_worker`),
-  KEY `fk_workers_vacancy` (`fd_vacancy`),
   KEY `fk_workers_state` (`fd_state`),
+  KEY `fk_workers_vacancy` (`fd_vacancy`),
   CONSTRAINT `fk_workers_state` FOREIGN KEY (`fd_state`) REFERENCES `workflow` (`id_step`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_workers_vacancy` FOREIGN KEY (`fd_vacancy`) REFERENCES `vacancies` (`id_vacancy`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  CONSTRAINT `fk_workers_vacancy` FOREIGN KEY (`fd_vacancy`) REFERENCES `vacancies` (`id_vacancy`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,6 +129,14 @@ LOCK TABLES `workflow` WRITE;
 INSERT INTO `workflow` VALUES (0,NULL,'Start'),(1,0,'Next'),(2,1,'Finish'),(3,0,'Cancel'),(4,0,'Rejected'),(8,1,'Interview'),(9,8,'Meeting'),(10,9,'Offer'),(11,8,'Rejected'),(12,9,'Rejected'),(13,10,'Rejected'),(14,10,'Hired');
 /*!40000 ALTER TABLE `workflow` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping events for database 'hrat'
+--
+
+--
+-- Dumping routines for database 'hrat'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -139,4 +147,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-07 18:23:00
+-- Dump completed on 2020-03-09 11:53:44

@@ -167,7 +167,7 @@ void MainWindow::deleteWorker(){
 }
 
 void MainWindow::manageVacancies(){
-    ManageVacancies dialog;
+    ManageVacancies manageVacDialog;
     Vacancies vacancies = dbHandler->getVacancies();
     QStringList vacList;
 
@@ -175,6 +175,24 @@ void MainWindow::manageVacancies(){
         vacList.push_back(vac.second);
     }
 
-    dialog.setVacancies(vacList);
-    dialog.exec();
+    manageVacDialog.setVacancies(vacList);
+    manageVacDialog.exec();
+    switch (manageVacDialog.command) {
+    case ManageVacancies::CommandType::None:
+        break;
+    case ManageVacancies::CommandType::Add:{
+        dbHandler->addVacancy(manageVacDialog.getVacancyName());
+        break;
+    }
+    case ManageVacancies::CommandType::Delete:{
+        auto deleteList = manageVacDialog.getSelectedItems();
+        std::list<uint16_t> vacKeys;
+        for (const auto &vacancy : deleteList) {
+            vacKeys.push_back(vacancies[vacancy].first);
+        }
+        dbHandler->deleteVacancies(vacKeys);
+        break;
+    }
+    }
+    table->select();
 }

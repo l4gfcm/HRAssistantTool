@@ -22,12 +22,15 @@ public:
     CommandType command = CommandType::None;
     void setVacancies(const QStringList &vacancies);
     std::list<uint16_t> getSelectedItems();
+    QString getVacancyName();
 private:
     Ui::ManageVacancies *ui;
     std::vector<QCheckBox *> vacList;
 private slots:
     void deleteVacancy();
     void addVacancy();
+    void checkDeleteInput();
+    void checkAddInput();
 };
 
 #endif // MANAGEVACANCIES_H
