@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    settings = new QSettings("l4gfcm", "HRAssistantTool", this);
+
     if(connectDatabase()){
     ui->setupUi(this);
     initApp();
@@ -42,7 +44,9 @@ MainWindow::~MainWindow()
 bool MainWindow::connectDatabase(){
     db = QSqlDatabase::addDatabase("QMYSQL");
     Login loginDialog;
-
+    loginDialog.setHost(settings->value("login/host").toString());
+    loginDialog.setDbName(settings->value("login/dbName").toString());
+    loginDialog.setLogin(settings->value("login/userName").toString());
     do{
         if (loginDialog.exec() == QDialog::Accepted){
             db.setHostName(loginDialog.getHost());
@@ -59,6 +63,7 @@ bool MainWindow::connectDatabase(){
         }
 
     } while (!db.isOpen());
+    saveLogin(loginDialog.getHost(),loginDialog.getDbName(), loginDialog.getLogin());
     return true;
 
 }
@@ -245,4 +250,19 @@ void MainWindow::restartWorkflow(){
 
 bool MainWindow::isFailed(){
     return !db.isOpen();
+}
+
+void MainWindow::loadSettings(){
+
+}
+
+void MainWindow::saveSettings(){
+
+}
+
+void MainWindow::saveLogin(const QString &hostName, const QString &dbName,
+                           const QString &userName){
+    settings->setValue("login/host", hostName);
+    settings->setValue("login/dbName", dbName);
+    settings->setValue("login/userName", userName);
 }

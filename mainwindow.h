@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QSqlDatabase>
+#include <QSettings>
 
 #include "dbhandler.h"
 
@@ -35,10 +36,14 @@ private:
     Filter *filterModel;
     DBHandler *dbHandler;
     std::vector<QAction*> mainBarActions;
+    QSettings *settings;
     bool connectDatabase();
     void initApp();
     void initMainBar();
-
+    void loadSettings();
+    void saveSettings();
+    void saveLogin(const QString &hostName,
+                   const QString &dbName, const QString &userName);
     enum class Actions : uint8_t{
         AddWorker,
         DeleteWorker,
