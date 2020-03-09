@@ -25,6 +25,10 @@ void EditRecord::setName(const std::pair<QString, QString> & name){
 }
 
 void EditRecord::setSteps(const QStringList &steps){
+    if(steps.size() == 0){
+        ui->tabWidget->widget(0)->setDisabled(true);
+        ui->WorkflowButtons->addWidget(new QLabel("Restart the worker's workflow to continue.", this));
+    }
     buttonsGroup = new QButtonGroup(this);
     connect(buttonsGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &EditRecord::checkInput);
     uint16_t index = 0;
