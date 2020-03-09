@@ -11,9 +11,11 @@ NewWorker::NewWorker(QWidget *parent) :
     ui->dateTime->setDate(QDate::currentDate());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    connect(ui->lnameLine, &QLineEdit::editingFinished, this, &NewWorker::checkInput);
-    connect(ui->fnameLine, &QLineEdit::editingFinished, this, &NewWorker::checkInput);
-    connect(ui->phoneLine, &QLineEdit::editingFinished, this, &NewWorker::checkInput);
+    connect(ui->lnameLine, &QLineEdit::textChanged, this, &NewWorker::checkInput);
+    connect(ui->fnameLine, &QLineEdit::textChanged, this, &NewWorker::checkInput);
+    connect(ui->phoneLine, &QLineEdit::textChanged, this, &NewWorker::checkInput);
+    connect(ui->commentEdit, &QPlainTextEdit::textChanged, this, &NewWorker::checkCommentInput);
+
 }
 
 NewWorker::~NewWorker()
@@ -61,4 +63,11 @@ void NewWorker::checkInput(){
     {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     }
+}
+
+void NewWorker::checkCommentInput(){
+    if(ui->commentEdit->toPlainText().size() > 128)
+        ui->commentEdit->setPlainText(
+                    ui->commentEdit->toPlainText().left(128)
+                    );
 }

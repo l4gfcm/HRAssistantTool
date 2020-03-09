@@ -14,6 +14,7 @@ EditRecord::EditRecord(QWidget *parent) :
     ui->setupUi(this);
     ui->nextDateTime->setDate(QDate::currentDate());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    connect(ui->commentEdit, &QPlainTextEdit::textChanged, this, &EditRecord::checkCommentInput);
 }
 
 EditRecord::~EditRecord()
@@ -66,17 +67,26 @@ void EditRecord::checkInput(){
     }
 }
 
-void EditRecord::setHistory(const std::vector<std::tuple<QString, QString, QDateTime> > & history){
+void EditRecord::setHistory(const std::vector<std::tuple<QString, QString, QDateTime>> & history){
+    for (const auto & record : history) {
+        ui->historyTextBrower->append(std::get<0>(record));
+        ui->historyTextBrower->setAlignment(Qt::AlignLeft);
 
-    for (size_t i = 0, row = 0 ; i < history.size() ; i++, row = row + 2) {
-        auto step = new QLabel(std::get<0>(history[i]), this);
-        auto comment = new QLabel(std::get<1>(history[i]), this);
-        auto date = new QLabel(std::get<2>(history[i]).toString(), this);
+        ui->historyTextBrower->append(std::get<2>(record).toString());
+        ui->historyTextBrower->setAlignment(Qt::AlignRight);
 
-        ui->gridLayoutHistrory->addWidget(step, row, 0, Qt::AlignTop);
-        ui->gridLayoutHistrory->addWidget(date, row, 1, Qt::AlignTop);
-        ui->gridLayoutHistrory->addWidget(comment, row + 1, 0, Qt::AlignTop);
-
+        if(!std::get<1>(record).isEmpty()){
+            ui->historyTextBrower->append(std::get<1>(record));
+            ui->historyTextBrower->setAlignment(Qt::AlignLeft);
+        }
     }
 }
+
+void EditRecord::checkCommentInput(){
+    if(ui->commentEdit->toPlainText().size() > 128)
+        ui->commentEdit->setPlainText(
+                    ui->commentEdit->toPlainText().left(128)
+                    );
+}
+
 

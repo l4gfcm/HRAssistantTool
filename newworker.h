@@ -27,6 +27,7 @@ private:
     Ui::NewWorker *ui;
 private slots:
     void checkInput();
+    void checkCommentInput();
 };
 
 #endif // NEWWORKER_H

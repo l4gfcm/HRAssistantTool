@@ -26,10 +26,10 @@ public:
     void setHistory(const std::vector<std::tuple<QString, QString, QDateTime>> &);
 private:
     Ui::EditRecord *ui;
-    //std::vector<QRadioButton *> buttons;
     QButtonGroup * buttonsGroup = nullptr;
 private slots:
     void checkInput();
+    void checkCommentInput();
 };
 
 #endif // EDITRECORD_H
