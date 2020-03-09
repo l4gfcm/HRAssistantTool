@@ -6,6 +6,7 @@
 #include "filter.h"
 #include "managevacancies.h"
 #include "restartworkflow.h"
+#include "login.h"
 
 #include <QSqlRelationalTableModel>
 #include <QMessageBox>
@@ -20,11 +21,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    if(connectDatabase()){
     ui->setupUi(this);
-    if(! connectDatabase())
-        qApp->quit();
     initApp();
     initMainBar();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -40,18 +41,26 @@ MainWindow::~MainWindow()
 
 bool MainWindow::connectDatabase(){
     db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("localhost");
-    db.setDatabaseName("hrat");
-    db.setUserName("root");
-    db.setPassword("123456");
-    if (db.open()){
-        QMessageBox::information(this, "OK", "Database is connected");
-        dbHandler = new DBHandler(db);
-        return true;}
-    else{
-        QMessageBox::critical(this, "Error!", "Database is not conected!");
-        return false;
-    }
+    Login loginDialog;
+
+    do{
+        if (loginDialog.exec() == QDialog::Accepted){
+            db.setHostName(loginDialog.getHost());
+            db.setDatabaseName(loginDialog.getDbName());
+            db.setUserName(loginDialog.getLogin());
+            db.setPassword(loginDialog.getPassword());
+            if (db.open())
+                QMessageBox::information(&loginDialog, "OK", "Database is connected.");
+            else
+                QMessageBox::critical(&loginDialog, "Error!", "Database is not conected!");
+        }
+        else{
+            return false;
+        }
+
+    } while (!db.isOpen());
+    return true;
+
 }
 
 void MainWindow::initMainBar(){
@@ -73,6 +82,7 @@ void MainWindow::initMainBar(){
 }
 
 void MainWindow::initApp(){
+    dbHandler = new DBHandler(db);
     table = new QSqlRelationalTableModel(this, db);
     table->setTable("workers");
 
@@ -231,4 +241,8 @@ void MainWindow::restartWorkflow(){
                     );
         table->select();
     }
+}
+
+bool MainWindow::isFailed(){
+    return !db.isOpen();
 }

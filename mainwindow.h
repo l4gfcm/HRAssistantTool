@@ -21,7 +21,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QSqlDatabase db;
+    bool isFailed();
 private slots:
     void addWorker();
     void editRecord(const QModelIndex &index);
@@ -29,6 +29,7 @@ private slots:
     void manageVacancies();
     void restartWorkflow();
 private:
+    QSqlDatabase db;
     Ui::MainWindow *ui;
     QSqlRelationalTableModel *table;
     Filter *filterModel;
