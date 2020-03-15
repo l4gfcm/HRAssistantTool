@@ -68,9 +68,7 @@ bool MainWindow::connectDatabase(){
             db.setDatabaseName(loginDialog.getDbName());
             db.setUserName(loginDialog.getLogin());
             db.setPassword(loginDialog.getPassword());
-            if (db.open())
-                QMessageBox::information(&loginDialog, "OK", "Database is connected.");
-            else
+            if (!db.open())
                 QMessageBox::critical(&loginDialog, "Error!", "Database is not conected!");
         }
         else{
@@ -137,20 +135,27 @@ void MainWindow::initApp(){
 
     initMainBar();
     loadSettings();
+    ui->statusBar->showMessage("Database is connected successfully.", 3000);
 }
 
 void MainWindow::addWorker(){
-    Vacancies vacancies = dbHandler->getVacancies();
+    auto getStatus = std::make_unique<bool>(true);
+    Vacancies vacancies = dbHandler->getVacancies(getStatus.get());
     QStringList vacList;
     for (auto vacancy : vacancies) {
         vacList.push_back(vacancy.second);
+    }
+
+    if(*getStatus == false){
+        printError(ErrorType::GetData);
+        return;
     }
 
     NewWorker dialogNW(this);
     dialogNW.setVacancies(vacList);
 
     if(dialogNW.exec() == QDialog::Accepted){
-        dbHandler->addWorker(
+        const bool status = dbHandler->addWorker(
                     std::make_pair(dialogNW.getFirsName(), dialogNW.getLastName()),
                     dialogNW.getPhoneNumber(),
                     dialogNW.getNextDateTime(),
@@ -158,13 +163,18 @@ void MainWindow::addWorker(){
                     dialogNW.getComment()
                     );
 
-        table->select();
+        if(status){
+            ui->statusBar->showMessage("Worker added successfully.", 3000);
+            table->select();
+        }
+        else
+            printError(ErrorType::DoOperation);
     }
 }
 
 void MainWindow::editRecord(const QModelIndex &index){
-
-    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt());
+    auto getStatus = std::make_unique<bool>(true);
+    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt(), getStatus.get());
     QStringList stepList;
     for (const auto &step : workerWorkFlow) {
         stepList.push_back(step.second);
@@ -179,13 +189,23 @@ void MainWindow::editRecord(const QModelIndex &index){
     EditRecord editDialog(this);
     editDialog.setName(name);
     editDialog.setSteps(stepList);
-    editDialog.setHistory(dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt()));
+    editDialog.setHistory(dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), getStatus.get()));
+
+    if(*getStatus == false){
+        printError(ErrorType::GetData);
+        return;
+    }
 
     if(editDialog.exec() == QDialog::Accepted){
-        dbHandler->updateWorker(index.siblingAtColumn(0).data().toUInt(),
+        const bool status = dbHandler->updateWorker(index.siblingAtColumn(0).data().toUInt(),
                                  workerWorkFlow[editDialog.getStateId()].first, editDialog.getComment());
-        table->select();
 
+        if(status){
+            ui->statusBar->showMessage("Record edited successfully.", 3000);
+            table->select();
+        }
+        else
+            printError(ErrorType::DoOperation);
     }
 
 }
@@ -202,15 +222,26 @@ void MainWindow::deleteWorker(){
     confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
     if(confirm.exec() == QMessageBox::Yes){
-        dbHandler->deleteWorker(ui->table->currentIndex().siblingAtColumn(0).data().toUInt());
-        table->select();
+        bool status = dbHandler->deleteWorker(ui->table->currentIndex().siblingAtColumn(0).data().toUInt());
+        if(status){
+            ui->statusBar->showMessage("Worker is deleted successfully.", 3000);
+            table->select();
+        }
+        else
+            printError(ErrorType::DoOperation);
     }
 }
 
 void MainWindow::manageVacancies(){
+    auto getStatus = std::make_unique<bool>(true);
     ManageVacancies manageVacDialog;
-    Vacancies vacancies = dbHandler->getVacancies();
+    Vacancies vacancies = dbHandler->getVacancies(getStatus.get());
     QStringList vacList;
+
+    if(*getStatus == false){
+        printError(ErrorType::GetData);
+        return;
+    }
 
     for (const auto &vac : vacancies) {
         vacList.push_back(vac.second);
@@ -218,11 +249,13 @@ void MainWindow::manageVacancies(){
 
     manageVacDialog.setVacancies(vacList);
     manageVacDialog.exec();
+    bool status = true;
+
     switch (manageVacDialog.command) {
     case ManageVacancies::CommandType::None:
         break;
     case ManageVacancies::CommandType::Add:{
-        dbHandler->addVacancy(manageVacDialog.getVacancyName());
+        status = dbHandler->addVacancy(manageVacDialog.getVacancyName());
         break;
     }
     case ManageVacancies::CommandType::Delete:{
@@ -231,18 +264,30 @@ void MainWindow::manageVacancies(){
         for (const auto &vacancy : deleteList) {
             vacKeys.push_back(vacancies[vacancy].first);
         }
-        dbHandler->deleteVacancies(vacKeys);
+        status = dbHandler->deleteVacancies(vacKeys);
         break;
     }
     }
-    table->select();
+    if(status){
+        ui->statusBar->showMessage("Operation completed successfully.", 3000);
+        table->select();
+    }
+    else
+        printError(ErrorType::DoOperation);
 }
 
 void MainWindow::restartWorkflow(){
+    auto getStatus = std::make_unique<bool>(true);
     const auto workerPK = ui->table->currentIndex().siblingAtColumn(0).data().toUInt();
-    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK);
+    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK, getStatus.get());
 
-    Vacancies vacansies = dbHandler->getVacancies();
+    Vacancies vacansies = dbHandler->getVacancies(getStatus.get());
+
+    if(*getStatus == false){
+        printError(ErrorType::GetData);
+        return;
+    }
+
     QStringList vacanciesNames;
     uint16_t currentVacancyIndex = 0;
 
@@ -261,12 +306,17 @@ void MainWindow::restartWorkflow(){
                 ui->table->currentIndex().siblingAtColumn(2).data().toString())
                 );
     if(restartDilog.exec() == QDialog::Accepted){
-        dbHandler->restartWorkflow(
+        const bool status = dbHandler->restartWorkflow(
                     ui->table->currentIndex().siblingAtColumn(0).data().toUInt(),
                     vacansies[restartDilog.getVacancy()].first,
                     restartDilog.getNextDate()
                     );
-        table->select();
+        if(status){
+            ui->statusBar->showMessage("Workflow restarted successfully.", 3000);
+            table->select();
+        }
+        else
+            printError(ErrorType::DoOperation);
     }
 }
 
@@ -331,4 +381,15 @@ void MainWindow::saveLogin(const QString &hostName, const QString &dbName,
     settings->setValue("dbName", dbName);
     settings->setValue("userName", userName);
     settings->endGroup();
+}
+
+void MainWindow::printError(const ErrorType &&val){
+    switch (val){
+    case ErrorType::GetData:
+        ui->statusBar->showMessage("Failed! Unable to load data. Please restart the software.", 5000);
+        break;
+    case ErrorType::DoOperation:
+        ui->statusBar->showMessage("Failed! Something has gone wrong. Please restart the software.", 5000);
+        break;
+    }
 }

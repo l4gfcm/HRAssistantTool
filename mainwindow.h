@@ -55,5 +55,11 @@ private:
     constexpr size_t at(const Actions value) const{
         return static_cast<size_t>(value);
     }
+    enum class ErrorType
+    {
+        GetData,
+        DoOperation
+    };
+    void printError(const ErrorType &&val);
 };
 #endif // MAINWINDOW_H

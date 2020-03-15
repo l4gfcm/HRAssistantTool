@@ -46,11 +46,11 @@ bool DBHandler::saveToHistory(const uint16_t &worker, const uint16_t &step, cons
     return query.exec();
 }
 
-Vacancies DBHandler::getVacancies(){
+Vacancies DBHandler::getVacancies(bool *ok){
     Vacancies vacancies;
     QSqlQuery query(dataBase);
     query.prepare("SELECT * FROM `vacancies`");
-    query.exec();
+    *ok = query.exec();
 
     while (query.next()) {
         vacancies.push_back(std::make_pair(query.value(0).toUInt(), query.value(1).toString()));;
@@ -58,13 +58,13 @@ Vacancies DBHandler::getVacancies(){
     return vacancies;
 }
 
-WorkFlow DBHandler::getWorkerWorkflow(const uint16_t &worker){
+WorkFlow DBHandler::getWorkerWorkflow(const uint16_t &worker, bool *ok){
     WorkFlow result;
     QSqlQuery query(dataBase);
     query.prepare("SELECT `id_step`, `sname` FROM `workflow` WHERE `pid_step` = "
                         "(SELECT fd_state FROM `workers` WHERE `id_worker` = ?)");
     query.bindValue(0, worker);
-    query.exec();
+    *ok = query.exec();
     while (query.next()) {
         result.push_back(std::make_pair(query.record().value(0).toInt(), //step id
                                         query.record().value(1).toString())); //step name
@@ -73,12 +73,12 @@ WorkFlow DBHandler::getWorkerWorkflow(const uint16_t &worker){
     return result;
 }
 
-History DBHandler::getWorkerHistory(const uint16_t &worker){
+History DBHandler::getWorkerHistory(const uint16_t &worker, bool *ok){
     QSqlQuery query(dataBase);
     query.prepare("SELECT `workflow`.`sname`, `comment`, `date` FROM `history` "
                        "INNER JOIN `workflow` ON `history`.`fid_step` = `workflow`.`id_step` WHERE fid_worker = ?");
     query.bindValue(0, worker);
-    query.exec();
+    *ok = query.exec();
 
     History userHistory; //StepName, Comment, date
     while (query.next()) {
@@ -147,11 +147,11 @@ bool DBHandler::restartWorkflow(const uint16_t &worker, const uint16_t &vacancy,
     return query.exec();
 }
 
-uint16_t DBHandler::getWorkerVacancy(const uint16_t &worker){
+uint16_t DBHandler::getWorkerVacancy(const uint16_t &worker, bool *ok){
     QSqlQuery query(dataBase);
     query.prepare("SELECT `fd_vacancy` FROM `workers` WHERE (`id_worker` = ?)");
     query.bindValue(0, worker);
-    query.exec();
+    *ok = query.exec();
     query.next();
     return query.record().value(0).toUInt();
 }
