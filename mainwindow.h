@@ -42,6 +42,7 @@ private:
     void initMainBar();
     void loadSettings();
     void saveSettings();
+    void closeEvent(QCloseEvent *event);
     void saveLogin(const QString &hostName,
                    const QString &dbName, const QString &userName);
     enum class Actions : uint8_t{

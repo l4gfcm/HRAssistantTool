@@ -16,6 +16,7 @@
 #include <QSqlIndex>
 #include <vector>
 #include <utility>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,7 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
     if(connectDatabase()){
     ui->setupUi(this);
     initApp();
-    initMainBar();
     }
 }
 
@@ -41,12 +41,27 @@ MainWindow::~MainWindow()
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent *event){
+    QMessageBox confirm(this);
+    confirm.setText("Are you sure want to exit?");
+    confirm.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    if(confirm.exec() == QMessageBox::Yes){
+        saveSettings();
+        event->accept();
+    }
+    else {
+        event->ignore();
+    }
+}
+
 bool MainWindow::connectDatabase(){
     db = QSqlDatabase::addDatabase("QMYSQL");
     Login loginDialog;
-    loginDialog.setHost(settings->value("login/host").toString());
-    loginDialog.setDbName(settings->value("login/dbName").toString());
-    loginDialog.setLogin(settings->value("login/userName").toString());
+    settings->beginGroup("login");
+    loginDialog.setHost(settings->value("host").toString());
+    loginDialog.setDbName(settings->value("dbName").toString());
+    loginDialog.setLogin(settings->value("userName").toString());
+    settings->endGroup();
     do{
         if (loginDialog.exec() == QDialog::Accepted){
             db.setHostName(loginDialog.getHost());
@@ -114,6 +129,9 @@ void MainWindow::initApp(){
 
     connect(ui->table, &QTableView::doubleClicked,
           this, &MainWindow::editRecord);
+
+    initMainBar();
+    loadSettings();
 }
 
 void MainWindow::addWorker(){
@@ -121,7 +139,6 @@ void MainWindow::addWorker(){
     QStringList vacList;
     for (auto vacancy : vacancies) {
         vacList.push_back(vacancy.second);
-        qDebug() << vacancy;
     }
 
     NewWorker dialogNW(this);
@@ -253,16 +270,60 @@ bool MainWindow::isFailed(){
 }
 
 void MainWindow::loadSettings(){
+    settings->beginGroup("mainWindow");
+    resize(settings->value("size", this->size()).toSize());
+    move(settings->value("position", this->pos()).toPoint());
+    addToolBar(static_cast<Qt::ToolBarArea>(
+                   settings->value("toolBar", Qt::ToolBarArea::TopToolBarArea).toInt()),
+                   ui->toolBar);
 
+    settings->endGroup();
+
+    settings->beginGroup("table");
+    settings->beginReadArray("columnWidths");
+    const auto colunmCount = ui->table->horizontalHeader()->count() - 1; //first column is invisible
+    for (auto i = 0; i < colunmCount; i++ ) {
+        settings->setArrayIndex(i);
+        ui->table->resizeColumnToContents(i + 1);
+        if(ui->table->columnWidth(i + 1) < settings->value("columnWidth", 0).toInt())
+            ui->table->setColumnWidth(i + 1, settings->value("columnWidth").toInt());
+    }
+    settings->endArray();
+    ui->table->horizontalHeader()->setSortIndicator(
+                settings->value("sortIndex", 0).toInt(),
+                static_cast<Qt::SortOrder>(settings->value("sortOrder", 0).toInt())
+                );
+    settings->endGroup();
 }
 
 void MainWindow::saveSettings(){
+
+    settings->beginGroup("mainWindow");
+    settings->setValue("size", this->size());
+    settings->setValue("positon", this->pos());
+    settings->setValue("toolBar", this->toolBarArea(ui->toolBar));
+    settings->endGroup();
+
+    settings->beginGroup("table");
+    const auto colunmCount = ui->table->horizontalHeader()->count() - 1; //first column is invisible
+    settings->beginWriteArray("columnWidths", colunmCount);
+
+    for (auto i = 0; i < colunmCount; i++) {
+        settings->setArrayIndex(i);
+        settings->setValue("columnWidth", ui->table->columnWidth(i));
+    }
+    settings->endArray();
+    settings->setValue("sortIndex", ui->table->horizontalHeader()->sortIndicatorSection());
+    settings->setValue("sortOrder", ui->table->horizontalHeader()->sortIndicatorOrder());
+    settings->endGroup();
 
 }
 
 void MainWindow::saveLogin(const QString &hostName, const QString &dbName,
                            const QString &userName){
-    settings->setValue("login/host", hostName);
-    settings->setValue("login/dbName", dbName);
-    settings->setValue("login/userName", userName);
+    settings->beginGroup("login");
+    settings->setValue("host", hostName);
+    settings->setValue("dbName", dbName);
+    settings->setValue("userName", userName);
+    settings->endGroup();
 }
