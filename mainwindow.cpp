@@ -141,18 +141,22 @@ void MainWindow::initApp(){
 void MainWindow::addWorker(){
     bool getStatus = true;
     Vacancies vacancies = dbHandler->getVacancies(&getStatus);
-    QStringList vacList;
-    for (auto vacancy : vacancies) {
-        vacList.push_back(vacancy.second);
-    }
+    auto maxCommentSize =dbHandler->getMaxCommentSize(&getStatus);
 
     if(getStatus == false){
         printError(ErrorType::GetData);
         return;
     }
 
+    QStringList vacList;
+    for (auto vacancy : vacancies) {
+        vacList.push_back(vacancy.second);
+    }
+
+
     NewWorker dialogNW(this);
     dialogNW.setVacancies(vacList);
+    dialogNW.setMaxCommentSize(maxCommentSize);
 
     if(dialogNW.exec() == QDialog::Accepted){
         const bool status = dbHandler->addWorker(
@@ -175,6 +179,14 @@ void MainWindow::addWorker(){
 void MainWindow::editRecord(const QModelIndex &index){
     bool getStatus = true;
     WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt(), &getStatus);
+    History workerHistory = dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), &getStatus);
+    auto maxCommentSize = dbHandler->getMaxCommentSize(&getStatus);
+
+    if(getStatus == false){
+        printError(ErrorType::GetData);
+        return;
+    }
+
     QStringList stepList;
     for (const auto &step : workerWorkFlow) {
         stepList.push_back(step.second);
@@ -189,12 +201,8 @@ void MainWindow::editRecord(const QModelIndex &index){
     EditRecord editDialog(this);
     editDialog.setName(name);
     editDialog.setSteps(stepList);
-    editDialog.setHistory(dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), &getStatus));
-
-    if(getStatus == false){
-        printError(ErrorType::GetData);
-        return;
-    }
+    editDialog.setHistory(workerHistory);
+    editDialog.setMaxCommentSize(maxCommentSize);
 
     if(editDialog.exec() == QDialog::Accepted){
         const bool status = dbHandler->updateWorker(index.siblingAtColumn(0).data().toUInt(),

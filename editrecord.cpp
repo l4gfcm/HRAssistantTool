@@ -83,10 +83,13 @@ void EditRecord::setHistory(const std::vector<std::tuple<QString, QString, QDate
 }
 
 void EditRecord::checkCommentInput(){
-    if(ui->commentEdit->toPlainText().size() > 128)
+    if(ui->commentEdit->toPlainText().size() > maxCommentSize)
         ui->commentEdit->setPlainText(
-                    ui->commentEdit->toPlainText().left(128)
+                    ui->commentEdit->toPlainText().left(maxCommentSize)
                     );
 }
 
+void EditRecord::setMaxCommentSize(const uint16_t &size){
+    maxCommentSize = size;
+}
 

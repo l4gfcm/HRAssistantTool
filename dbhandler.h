@@ -17,6 +17,7 @@ public:
     explicit DBHandler(QSqlDatabase &db);
     virtual ~DBHandler();
 
+    uint16_t getMaxCommentSize(bool *ok = nullptr);
     uint16_t getWorkerVacancy(const uint16_t &worker, bool *ok = nullptr);
     Vacancies getVacancies(bool *ok = nullptr);
     WorkFlow getWorkerWorkflow(const uint16_t &worker, bool *ok = nullptr);

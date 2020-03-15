@@ -22,9 +22,11 @@ public:
     QDateTime getNextDateTime();
     uint16_t getVacancyIndex();
     void setVacancies(const QStringList & vac);
+    void setMaxCommentSize(const uint16_t &size);
 
 private:
     Ui::NewWorker *ui;
+    uint16_t maxCommentSize = 0;
 private slots:
     void checkInput();
     void checkCommentInput();

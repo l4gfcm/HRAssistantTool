@@ -24,9 +24,11 @@ public:
     QString getComment();
     uint16_t getStateId();
     void setHistory(const std::vector<std::tuple<QString, QString, QDateTime>> &);
+    void setMaxCommentSize(const uint16_t &size);
 private:
     Ui::EditRecord *ui;
     QButtonGroup * buttonsGroup = nullptr;
+    uint16_t maxCommentSize = 0;
 private slots:
     void checkInput();
     void checkCommentInput();

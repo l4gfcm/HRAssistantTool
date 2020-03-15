@@ -66,8 +66,12 @@ void NewWorker::checkInput(){
 }
 
 void NewWorker::checkCommentInput(){
-    if(ui->commentEdit->toPlainText().size() > 128)
+    if(ui->commentEdit->toPlainText().size() > maxCommentSize)
         ui->commentEdit->setPlainText(
-                    ui->commentEdit->toPlainText().left(128)
+                    ui->commentEdit->toPlainText().left(maxCommentSize)
                     );
+}
+
+void NewWorker::setMaxCommentSize(const uint16_t &size){
+    maxCommentSize = size;
 }

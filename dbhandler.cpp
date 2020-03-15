@@ -155,3 +155,10 @@ uint16_t DBHandler::getWorkerVacancy(const uint16_t &worker, bool *ok){
     query.next();
     return query.record().value(0).toUInt();
 }
+
+uint16_t DBHandler::getMaxCommentSize(bool *ok){
+    QSqlQuery query("SELECT max(length(`comment`)) FROM `history`", dataBase);
+    *ok = query.exec();
+    query.next();
+    return query.record().value(0).toUInt();
+}
