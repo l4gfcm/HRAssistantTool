@@ -49,7 +49,8 @@ private:
         AddWorker,
         DeleteWorker,
         ManageVacancies,
-        RestartWorkflow
+        RestartWorkflow,
+        EditRecord
     };
     constexpr size_t at(const Actions value) const{
         return static_cast<size_t>(value);

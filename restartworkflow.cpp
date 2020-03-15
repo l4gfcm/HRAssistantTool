@@ -28,6 +28,6 @@ QDateTime RestartWorkflow::getNextDate(){
 }
 
 void RestartWorkflow::setWorkerName(const std::pair<QString, QString> &name){
-    setWindowTitle(QString("Restart workflof of ").append(name.first)
+    setWindowTitle(QString("Restart workflow of ").append(name.first)
                    .append(" ").append(name.second).append("?"));
 }

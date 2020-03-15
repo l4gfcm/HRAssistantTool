@@ -99,6 +99,11 @@ void MainWindow::initMainBar(){
     mainBarActions.push_back(new QAction("Restart Workflow", this));
     ui->toolBar->addAction(mainBarActions[at(Actions::RestartWorkflow)]);
     connect(mainBarActions[at(Actions::RestartWorkflow)], &QAction::triggered, this, &MainWindow::restartWorkflow);
+
+    mainBarActions.push_back(new QAction("Edit Record", this));
+    ui->toolBar->addAction(mainBarActions[at(Actions::EditRecord)]);
+    connect(mainBarActions[at(Actions::EditRecord)], &QAction::triggered, this,
+            [this](){this->editRecord(ui->table->currentIndex());});
 }
 
 void MainWindow::initApp(){
