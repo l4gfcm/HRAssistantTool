@@ -16,6 +16,10 @@ NewWorker::NewWorker(QWidget *parent) :
     connect(ui->phoneLine, &QLineEdit::textChanged, this, &NewWorker::checkInput);
     connect(ui->commentEdit, &QPlainTextEdit::textChanged, this, &NewWorker::checkCommentInput);
 
+    ui->lnameLine->setMaxLength(20);
+    ui->fnameLine->setMaxLength(20);
+    ui->phoneLine->setMaxLength(16);
+
 }
 
 NewWorker::~NewWorker()
