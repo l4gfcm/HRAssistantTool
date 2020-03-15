@@ -139,14 +139,14 @@ void MainWindow::initApp(){
 }
 
 void MainWindow::addWorker(){
-    auto getStatus = std::make_unique<bool>(true);
-    Vacancies vacancies = dbHandler->getVacancies(getStatus.get());
+    bool getStatus = true;
+    Vacancies vacancies = dbHandler->getVacancies(&getStatus);
     QStringList vacList;
     for (auto vacancy : vacancies) {
         vacList.push_back(vacancy.second);
     }
 
-    if(*getStatus == false){
+    if(getStatus == false){
         printError(ErrorType::GetData);
         return;
     }
@@ -173,8 +173,8 @@ void MainWindow::addWorker(){
 }
 
 void MainWindow::editRecord(const QModelIndex &index){
-    auto getStatus = std::make_unique<bool>(true);
-    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt(), getStatus.get());
+    bool getStatus = true;
+    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt(), &getStatus);
     QStringList stepList;
     for (const auto &step : workerWorkFlow) {
         stepList.push_back(step.second);
@@ -189,9 +189,9 @@ void MainWindow::editRecord(const QModelIndex &index){
     EditRecord editDialog(this);
     editDialog.setName(name);
     editDialog.setSteps(stepList);
-    editDialog.setHistory(dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), getStatus.get()));
+    editDialog.setHistory(dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), &getStatus));
 
-    if(*getStatus == false){
+    if(getStatus == false){
         printError(ErrorType::GetData);
         return;
     }
@@ -233,12 +233,12 @@ void MainWindow::deleteWorker(){
 }
 
 void MainWindow::manageVacancies(){
-    auto getStatus = std::make_unique<bool>(true);
+    bool getStatus = true;
     ManageVacancies manageVacDialog;
-    Vacancies vacancies = dbHandler->getVacancies(getStatus.get());
+    Vacancies vacancies = dbHandler->getVacancies(&getStatus);
     QStringList vacList;
 
-    if(*getStatus == false){
+    if(getStatus == false){
         printError(ErrorType::GetData);
         return;
     }
@@ -277,13 +277,13 @@ void MainWindow::manageVacancies(){
 }
 
 void MainWindow::restartWorkflow(){
-    auto getStatus = std::make_unique<bool>(true);
+    bool getStatus = true;
     const auto workerPK = ui->table->currentIndex().siblingAtColumn(0).data().toUInt();
-    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK, getStatus.get());
+    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK, &getStatus);
 
-    Vacancies vacansies = dbHandler->getVacancies(getStatus.get());
+    Vacancies vacansies = dbHandler->getVacancies(&getStatus);
 
-    if(*getStatus == false){
+    if(getStatus == false){
         printError(ErrorType::GetData);
         return;
     }
