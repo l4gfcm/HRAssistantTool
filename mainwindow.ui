@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>610</width>
-    <height>486</height>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,6 +55,9 @@
       </attribute>
       <attribute name="horizontalHeaderStretchLastSection">
        <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderCascadingSectionResizes">
        <bool>false</bool>

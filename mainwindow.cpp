@@ -17,6 +17,7 @@
 #include <vector>
 #include <utility>
 #include <QCloseEvent>
+#include <QHeaderView>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -353,7 +354,7 @@ void MainWindow::loadSettings(){
     }
     settings->endArray();
     ui->table->horizontalHeader()->setSortIndicator(
-                settings->value("sortIndex", 0).toInt(),
+                settings->value("sortIndex", 1).toInt(),
                 static_cast<Qt::SortOrder>(settings->value("sortOrder", 0).toInt())
                 );
     settings->endGroup();
