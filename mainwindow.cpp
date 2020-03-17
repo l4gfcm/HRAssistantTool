@@ -59,24 +59,33 @@ bool MainWindow::connectDatabase(){
     db = QSqlDatabase::addDatabase("QMYSQL");
     Login loginDialog;
     settings->beginGroup("login");
-    loginDialog.setHost(settings->value("host").toString());
-    loginDialog.setDbName(settings->value("dbName").toString());
-    loginDialog.setLogin(settings->value("userName").toString());
+    loginDialog.setHost(settings->value("host", "").toString());
+    loginDialog.setDbName(settings->value("dbName", "").toString());
+    loginDialog.setLogin(settings->value("userName", "").toString());
     settings->endGroup();
+
+    bool isDbValid = true;
+
     do{
+        isDbValid = true;
         if (loginDialog.exec() == QDialog::Accepted){
             db.setHostName(loginDialog.getHost());
             db.setDatabaseName(loginDialog.getDbName());
             db.setUserName(loginDialog.getLogin());
             db.setPassword(loginDialog.getPassword());
             if (!db.open())
-                QMessageBox::critical(&loginDialog, "Error!", "Database is not conected!");
+                QMessageBox::critical(&loginDialog, "Error!", "Database is not conected.");
+            else if (!DBHandler::validateDatabase(db)) {
+                QMessageBox::critical(&loginDialog, "Error!", "Connected database is invalid.");
+                isDbValid = false;
+            }
         }
         else{
             return false;
         }
 
-    } while (!db.isOpen());
+    } while (!db.isOpen() || !isDbValid);
+    isValid = true;
     saveLogin(loginDialog.getHost(),loginDialog.getDbName(), loginDialog.getLogin());
     return true;
 
@@ -338,7 +347,7 @@ void MainWindow::restartWorkflow(){
 }
 
 bool MainWindow::isFailed(){
-    return !db.isOpen();
+    return !isValid;
 }
 
 void MainWindow::loadSettings(){

@@ -6,7 +6,6 @@
 #include <QDateTime>
 #include <QSqlRecord>
 
-
 DBHandler::DBHandler(QSqlDatabase &db):
     dataBase{db}
 {
@@ -161,4 +160,15 @@ uint16_t DBHandler::getMaxCommentSize(bool *ok){
     *ok = query.exec();
     query.next();
     return query.record().value(0).toUInt();
+}
+
+bool DBHandler::validateDatabase(QSqlDatabase &db){
+    QStringList reqTables{"history", "vacancies", "workers", "workflow"};
+    QSqlQuery query("SHOW TABLES", db);
+
+    while (query.next()){
+        if (!reqTables.contains(query.value(0).toString(), Qt::CaseInsensitive))
+            return false;
+    }
+    return true;
 }

@@ -61,5 +61,6 @@ private:
         DoOperation
     };
     void printError(const ErrorType &&val);
+    bool isValid = false;
 };
 #endif // MAINWINDOW_H

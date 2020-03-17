@@ -29,6 +29,7 @@ public:
     bool restartWorkflow(const uint16_t &worker, const uint16_t &vacancy, const QDateTime &nextDate);
     bool addWorker(const WorkerName &name, const QString &phone,
                    const QDateTime &nextDate, const uint16_t &vacancy, const QString &comment);
+    static bool validateDatabase(QSqlDatabase &db);
 
 private:
     bool saveToHistory(const uint16_t &worker, const uint16_t &step, const QString &comment);
