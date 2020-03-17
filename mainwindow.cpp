@@ -149,6 +149,10 @@ void MainWindow::addWorker(){
         return;
     }
 
+    std::sort(vacancies.begin(), vacancies.end(), [](const auto a, const auto b){
+        return a.second < b.second;}
+    );
+
     QStringList vacList;
     for (auto vacancy : vacancies) {
         vacList.push_back(vacancy.second);
@@ -251,6 +255,10 @@ void MainWindow::manageVacancies(){
         printError(ErrorType::GetData);
         return;
     }
+
+    std::sort(vacancies.begin(), vacancies.end(), [](const auto a, const auto b){
+        return a.second < b.second;}
+    );
 
     for (const auto &vac : vacancies) {
         vacList.push_back(vac.second);
