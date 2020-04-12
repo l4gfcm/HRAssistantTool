@@ -156,10 +156,8 @@ uint16_t DBHandler::getWorkerVacancy(const uint16_t &worker, bool *ok){
 }
 
 uint16_t DBHandler::getMaxCommentSize(bool *ok){
-    QSqlQuery query("SELECT max(length(`comment`)) FROM `history`", dataBase);
-    *ok = query.exec();
-    query.next();
-    return query.record().value(0).toUInt();
+    *ok = true; //there has't a method to get a max length of TEXT type
+    return 255;
 }
 
 bool DBHandler::validateDatabase(QSqlDatabase &db){
