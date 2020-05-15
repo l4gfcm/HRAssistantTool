@@ -92,11 +92,13 @@ History DBHandler::getWorkerHistory(const uint16_t &worker, bool *ok){
     return userHistory;
 }
 
-bool DBHandler::updateWorker(const uint16_t &worker, const uint16_t &step, const QString &comment){
+bool DBHandler::updateWorker(const uint16_t &worker, const uint16_t &step, const QString &comment, const QDateTime &nextDate){
     QSqlQuery query(dataBase);
-    query.prepare("UPDATE `workers` SET `fd_state` = ? WHERE (`id_worker` = ?)");
+    query.prepare("UPDATE `workers` SET `fd_state` = ?, `next_date` = ? WHERE (`id_worker` = ?)");
     query.bindValue(0, step); //step id
-    query.bindValue(1, worker); //id value of worker
+    query.bindValue(1, nextDate);
+    query.bindValue(2, worker); //id value of worker
+
     return query.exec() &&
             saveToHistory(worker, step, comment);
 

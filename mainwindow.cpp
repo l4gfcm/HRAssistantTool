@@ -219,8 +219,12 @@ void MainWindow::editRecord(const QModelIndex &index){
     editDialog.setMaxCommentSize(maxCommentSize);
 
     if(editDialog.exec() == QDialog::Accepted){
-        const bool status = dbHandler->updateWorker(index.siblingAtColumn(0).data().toUInt(),
-                                 workerWorkFlow[editDialog.getStateId()].first, editDialog.getComment());
+        const bool status = dbHandler->updateWorker(
+                    index.siblingAtColumn(0).data().toUInt(),
+                    workerWorkFlow[editDialog.getStateId()].first,
+                    editDialog.getComment(),
+                    editDialog.getNextDate()
+                );
 
         if(status){
             ui->statusBar->showMessage("Record edited successfully.", 3000);

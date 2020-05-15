@@ -22,7 +22,7 @@ public:
     Vacancies getVacancies(bool *ok = nullptr);
     WorkFlow getWorkerWorkflow(const uint16_t &worker, bool *ok = nullptr);
     History getWorkerHistory(const uint16_t &worker, bool *ok = nullptr);
-    bool updateWorker(const uint16_t &worker, const uint16_t &step, const QString &comment);
+    bool updateWorker(const uint16_t &worker, const uint16_t &step, const QString &comment, const QDateTime &nextDate);
     bool deleteWorker(const uint16_t &worker);
     bool addVacancy(const QString &vacName);
     bool deleteVacancies(const std::list<uint16_t> &vacList);
