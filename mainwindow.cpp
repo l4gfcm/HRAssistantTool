@@ -149,11 +149,11 @@ void MainWindow::initApp(){
 }
 
 void MainWindow::addWorker(){
-    bool getStatus = true;
-    Vacancies vacancies = dbHandler->getVacancies(&getStatus);
-    auto maxCommentSize =dbHandler->getMaxCommentSize(&getStatus);
+    bool getStatus[2] = {};
+    Vacancies vacancies = dbHandler->getVacancies(&getStatus[0]);
+    auto maxCommentSize =dbHandler->getMaxCommentSize(&getStatus[1]);
 
-    if(getStatus == false){
+    if(!(getStatus[0] && getStatus[1])){
         printError(ErrorType::GetData);
         return;
     }
@@ -191,12 +191,12 @@ void MainWindow::addWorker(){
 }
 
 void MainWindow::editRecord(const QModelIndex &index){
-    bool getStatus = true;
-    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt(), &getStatus);
-    History workerHistory = dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), &getStatus);
-    auto maxCommentSize = dbHandler->getMaxCommentSize(&getStatus);
+    bool getStatus[3] = {};
+    WorkFlow workerWorkFlow = dbHandler->getWorkerWorkflow(index.siblingAtColumn(0).data().toUInt(), &getStatus[0]);
+    History workerHistory = dbHandler->getWorkerHistory(index.siblingAtColumn(0).data().toUInt(), &getStatus[1]);
+    auto maxCommentSize = dbHandler->getMaxCommentSize(&getStatus[2]);
 
-    if(getStatus == false){
+    if(!(getStatus[0] && getStatus[1] && getStatus[2])){
         printError(ErrorType::GetData);
         return;
     }
@@ -307,13 +307,13 @@ void MainWindow::manageVacancies(){
 }
 
 void MainWindow::restartWorkflow(){
-    bool getStatus = true;
+    bool getStatus[2] = {};
     const auto workerPK = ui->table->currentIndex().siblingAtColumn(0).data().toUInt();
-    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK, &getStatus);
 
-    Vacancies vacansies = dbHandler->getVacancies(&getStatus);
+    const auto workerVacancyKey = dbHandler->getWorkerVacancy(workerPK, &getStatus[0]);
+    Vacancies vacansies = dbHandler->getVacancies(&getStatus[1]);
 
-    if(getStatus == false){
+    if(!(getStatus[0] && getStatus[0])){
         printError(ErrorType::GetData);
         return;
     }
